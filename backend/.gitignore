@@ -2,6 +2,8 @@
 data/raw/*
 data/cleaned/*
 data/logs/*
+etl/*.ipynb
+venv/
 
 # Python cache
 __pycache__/
