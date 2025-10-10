@@ -1,9 +1,6 @@
 import pandas as pd
 
 def transform_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean, filter, and enrich taxi trip data safely.
-    """
     print("Cleaning and transforming data...")
 
     # Make a copy to avoid SettingWithCopyWarning
@@ -32,6 +29,8 @@ def transform_data(df: pd.DataFrame) -> pd.DataFrame:
     df[['PULocationID', 'DOLocationID']] = (
         df[['PULocationID', 'DOLocationID']]
         .apply(pd.to_numeric, errors='coerce')  # convert to numbers, invalid → NaN
+        .round(0)
+        .astype('Int64')
     )
 
     # drop unnecessary columns

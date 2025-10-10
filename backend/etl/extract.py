@@ -4,10 +4,7 @@ import pandas as pd
 from pathlib import Path
 
 
-def extract_data(n_rows_per_file=5000):
-    """
-    Safely sample a few rows from each Parquet file without loading everything.
-    """
+def extract_data(n_rows_per_file=100000):
     raw_dir = Path("data/raw")
     files = list(raw_dir.glob("*.parquet"))
     if not files:
@@ -38,7 +35,9 @@ def extract_data(n_rows_per_file=5000):
 
 
 
+
+
+
+
+
     
-
-
-
