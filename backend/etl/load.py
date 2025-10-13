@@ -15,6 +15,17 @@ DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "cleaned"
 EXTRACTED_PATH = DATA_DIR / "extracted.csv"
 ZONE_LOOKUP_PATH = DATA_DIR / "taxi_zone_lookup.csv"
 
+VENDOR_NAME_MAP = {
+    "HV0002": "Juno",
+    "HV0003": "Uber",
+    "HV0004": "Via",
+    "HV0005": "Lyft",
+    "1": "Creative Mobile Technologies (CMT)",
+    "2": "Curb Mobility",
+    "6": "Myle Technologies Inc",
+    "7": "Helix",
+}
+
 
 def _safe_datetime(value):
     if pd.isna(value):
@@ -44,6 +55,17 @@ def _safe_int(value):
     return int(value)
 
 
+def _normalize_vendor_id(value) -> str | None:
+    if pd.isna(value):
+        return None
+    s = str(value).strip()
+    if not s:
+        return None
+    if s.endswith(".0"):
+        s = s[:-2]
+    return s
+
+
 def load_locations(session, lookup_df: pd.DataFrame) -> None:
     records = []
 
@@ -65,7 +87,13 @@ def load_locations(session, lookup_df: pd.DataFrame) -> None:
 def load_vendors(session, trip_df: pd.DataFrame) -> None:
     vendor_series = trip_df["vendor_id"].dropna().astype(str).str.strip()
     vendor_ids = sorted({vendor for vendor in vendor_series if vendor})
-    records = [Vendor(vendor_id=vendor_id, vendor_name=None) for vendor_id in vendor_ids]
+    records = [
+        Vendor(
+            vendor_id=vendor_id,
+            vendor_name=VENDOR_NAME_MAP.get(vendor_id),
+        )
+        for vendor_id in vendor_ids
+    ]
     session.bulk_save_objects(records, return_defaults=False)
     session.commit()
     print(f"Inserted {len(records):,} vendors.")
@@ -165,7 +193,7 @@ def load_data(no_reset: bool = False, batch_size: int = 1_000) -> None:
         ).replace("", pd.NA)
 
         # Ensure required fields are present and valid
-        trip_df["vendor_id"] = trip_df["vendor_id"].astype("string").str.strip()
+        trip_df["vendor_id"] = trip_df["vendor_id"].apply(_normalize_vendor_id)
         trip_df = trip_df.dropna(subset=["vendor_id", "PULocationID", "DOLocationID"])
         trip_df = trip_df[trip_df["vendor_id"].astype(str).str.len() > 0]
         trip_df["PULocationID"] = trip_df["PULocationID"].astype("Int64")

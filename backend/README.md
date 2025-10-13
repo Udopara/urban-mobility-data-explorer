@@ -49,7 +49,7 @@ Create tables using the SQLAlchemy models:
 ```bash
 cd backend
 set -a && source .env && set +a
-PYTHONPATH="$(pwd)/.." venv/bin/python -m backend.app.db.initialize
+PYTHONPATH="$(pwd)/.." venv/bin/python -m app.db.initialize
 ```
 
 This will create the `vendors`, `locations`, and `trips` tables.
@@ -61,7 +61,7 @@ The ETL extracts parquet trip data, produces `data/cleaned/extracted.csv`, and l
 ```bash
 cd backend
 set -a && source .env && set +a
-PYTHONPATH="$(pwd)/.." venv/bin/python -m backend.etl
+PYTHONPATH="$(pwd)/.." venv/bin/python -m etl
 ```
 
 What happens:
@@ -77,7 +77,7 @@ If you already have `data/cleaned/extracted.csv` and just want to load it:
 ```bash
 cd backend
 set -a && source .env && set +a
-PYTHONPATH="$(pwd)/.." venv/bin/python -m backend.etl.load
+PYTHONPATH="$(pwd)/.." venv/bin/python -m etl.load
 ```
 
 Use `--no-reset` to append instead of truncating tables and `--batch-size` to adjust trip insert size.
@@ -94,7 +94,7 @@ Use `--no-reset` to append instead of truncating tables and `--batch-size` to ad
 ## Troubleshooting
 
 - **Database connection errors**: confirm environment variables are exported and the database server is reachable.
-- **Missing tables**: rerun `backend.app.db.initialize`.
+- **Missing tables**: rerun `app.db.initialize`.
 - **Large dataset**: the default extractor samples from each parquet. Adjust `extract_data()` in `etl/extract.py` for broader coverage if needed.
 
 ## Next Steps
