@@ -20,7 +20,7 @@ Directory layout (relevant parts):
 
 Open PowerShell and run the following from the repository root.
 
-1. Create and activate a virtual environment (from repo root):
+1. Create and activate a virtual environment (from backend folder):
 
 ```powershell
 python -m venv .\venv
@@ -33,20 +33,7 @@ python -m venv .\venv
 pip install -r .\backend\requirements.txt
 ```
 
-3. Create or verify environment variables
 
-The backend reads environment variables from `backend/.env`. If you have a `.env` file already, you can load it into your PowerShell session with the following command (this sets variables for the current session only):
-
-```powershell
-Get-Content backend\.env | ForEach-Object {
-	if ($_ -and $_ -notmatch '^[\s#]') {
-		$key, $value = $_ -split '=', 2
-		Set-Item "env:$key" $value
-	}
-}
-```
-
-Adjust `backend/.env` if you need to change DB paths or other settings.
 
 ## Running the ETL
 
