@@ -1,102 +1,246 @@
-# Urban Mobility Backend
+# urban-mobility-data-explorer
 
-This backend powers the Urban Mobility Data Explorer ETL and data API. It includes:
+## Overview
 
-- A streaming ETL pipeline that extracts Parquet trip files, cleans them, and loads them into a relational database (tested with MariaDB/MySQL, but any SQLAlchemy-supported engine should work).
-- SQLAlchemy ORM models for vendors, taxi zones, and trips.
-- Utility scripts for running the pipeline and seeding the database.
+This repository contains a small ETL pipeline and a FastAPI backend for exploring urban mobility data.
 
-## Prerequisites
+Directory layout (relevant parts):
 
-- Python 3.12 (see `venv/` for the project virtual environment)
-- MariaDB or MySQL server
-- Taxi data parquet files under `backend/data/raw/`
-- Taxi zone lookup CSV at `backend/data/cleaned/taxi_zone_lookup.csv`
+- `backend/` - Python backend, ETL scripts, FastAPI app and database schema.
+- `data/` - raw and cleaned data used by the ETL.
+- `frontend/` - simple static front-end files (HTML, JS, CSS).
 
-## Installation
+## Requirements
 
-```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+- Python 3.10+ (the project was developed against Python 3.10/3.11; newer versions should work but confirm locally).
+- A virtual environment is recommended.
+- Required Python packages are in `backend/requirements.txt`.
+
+## Setup (Windows PowerShell)
+
+Open PowerShell and run the following from the repository root.
+
+1. Create and activate a virtual environment (from backend folder):
+
+```powershell
+python -m venv .\venv
+.\venv\Scripts\Activate.ps1
 ```
 
-## Environment Configuration
+2. Install dependencies:
 
-Create `backend/.env` with:
+```powershell
+pip install -r .\backend\requirements.txt
+```
+
+
+
+## Running the ETL
+
+From the `backend` directory, run the ETL (extract → transform → load) which populates the database used by the FastAPI app.
+
+```powershell
+cd .\backend
+python -m backend.etl
+```
+
+What this does:
+- Executes `backend/etl/__main__.py` (module `backend.etl`).
+- The ETL will read raw data in `backend/data/raw` (or `data/raw` depending on configuration), run cleaning and transforms, and load results into the local database defined in `backend/.env` or the default config in `backend/db/config.py`.
+
+If you need to re-run the ETL multiple times, the script is idempotent where possible; check the ETL logs in `backend/data/logs/` or console output for details.
+
+## Starting the FastAPI server (development)
+
+After the ETL has populated the database, start the FastAPI server from the `backend` directory.
+
+```powershell
+cd .\backend
+python .\app\main.py
+```
+
+Alternative using uvicorn (gives automatic reload during development):
+
+```powershell
+cd .\backend
+python -m uvicorn backend.app.main:app --reload --env-file backend/.env
+```
+
+Notes:
+- Using `python .\app\main.py` runs the same application module directly. If the app uses `if __name__ == "__main__":` to start uvicorn, this will launch the server.
+- Using `uvicorn` with `--reload` enables hot-reload for development.
+- The `--env-file backend/.env` option ensures uvicorn loads environment variables from the `.env` file.
+
+The API will be reachable at http://127.0.0.1:8000 by default (unless overridden by environment variables). You can open the interactive API docs at:
+
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
+
+## Quick troubleshooting
+
+- If you see import errors, ensure the virtualenv is activated and `backend/requirements.txt` was installed.
+- If the database file is missing or the ETL fails, inspect `backend/db/config.py` and `backend/.env` for the DB path.
+- On Windows PowerShell, if you get an execution policy error when running `Activate.ps1`, run PowerShell as Administrator and set the policy temporarily:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\venv\Scripts\Activate.ps1
+```
+
+- If ports are in use, change the host/port via uvicorn options, for example: `--host 0.0.0.0 --port 8080`.
+
+## Development notes
+
+- Tests: see `tests/` for unit tests. You can run these with `pytest` from the repository root (after installing dev requirements if any):
+
+```powershell
+pytest -q
+```
+
+- The project layout places the FastAPI app in `backend/app/main.py` and DB schema in `backend/db/schema.sql`.
+
+## Summary
+
+1. From `backend`: `python -m backend.etl` — runs ETL and loads the DB.
+2. From `backend`: `python .\app\main.py` — starts FastAPI server (or use uvicorn as shown above).
+
+
+# urban-mobility-data-explorer
+
+## Environment variables
+
+The backend reads configuration from `backend/.env` when present. For convenience an example file is included at `backend/.env.example` — copy it and fill in the values before running the ETL or server:
+
+```powershell
+cp backend\.env.example backend\.env
+# then edit backend\.env in your editor
+```
+
+Important variables:
+
+- `DATABASE_URL` (optional): a full SQLAlchemy-compatible database URL (e.g. `mysql+pymysql://user:pass@host:3306/dbname`). If present, it overrides the individual DB_* variables.
+- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`: used to build a MySQL connection URL when `DATABASE_URL` is not set.
+
+Examples:
+
+- MySQL using individual variables:
 
 ```
 DB_HOST=localhost
 DB_PORT=3306
-DB_USER=your_user
-DB_PASSWORD=your_password
+DB_USER=root
+DB_PASSWORD=s3cr3t
 DB_NAME=urban_mobility
 ```
 
-These variables are picked up when running scripts (export them into the shell or pass `--env-file` when using uvicorn).
+- Or set a single `DATABASE_URL`:
 
-Ensure the target database exists (example for MariaDB/MySQL):
-
-```sql
-CREATE DATABASE urban_mobility CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+DATABASE_URL=mysql+pymysql://root:s3cr3t@localhost:3306/urban_mobility
 ```
 
-## Database Setup
+If your project uses Postgres instead of MySQL, provide the suitable `DATABASE_URL` (for example `postgresql+psycopg2://user:pass@host:5432/dbname`) and ensure the appropriate DB driver is installed (`psycopg2-binary` is already in `requirements.txt`).
 
-Create tables using the SQLAlchemy models:
+## Complete step-by-step (Windows PowerShell)
 
-```bash
-cd backend
-set -a && source .env && set +a
-PYTHONPATH="$(pwd)/.." venv/bin/python -m app.db.initialize
+The following section collects all the commands and variations shown during development so you can reproduce the exact workflows you used earlier.
+
+Choose one workflow below.
+
+A) Recommended — virtual environment at repository root
+
+```powershell
+# from repository root
+python -m venv .\venv
+.\venv\Scripts\Activate.ps1
+pip install -r .\backend\requirements.txt
+
+# copy example env and edit
+cp backend\.env.example backend\.env
+# edit backend\.env using your editor and set DB_* or DATABASE_URL
+
+# run ETL (from repo root)
+python -m backend.etl
+
+# start FastAPI (option 1 - direct module run)
+python .\backend\app\main.py
+
+# start with uvicorn (option 2 - reload + load env file automatically)
+python -m uvicorn backend.app.main:app --reload --env-file backend/.env
+
+# when finished
+deactivate
 ```
 
-This will create the `vendors`, `locations`, and `trips` tables.
+B) Alternative — virtual environment inside `backend/` (this mirrors your command history)
 
-## Running the ETL Pipeline
+If you prefer to create the venv inside `backend/` (some contributors do this), follow these steps. Note: when running from inside `backend/`, set `PYTHONPATH` so Python can import the `backend` package from its parent directory.
 
-The ETL extracts parquet trip data, produces `data/cleaned/extracted.csv`, and loads everything into the database:
+```powershell
+# from repository root or any folder, switch to backend
+cd .\backend
 
-```bash
-cd backend
-set -a && source .env && set +a
-PYTHONPATH="$(pwd)/.." venv/bin/python -m etl
+# create venv inside backend
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+
+# install from backend/requirements.txt
+pip install -r .\requirements.txt
+
+# copy and edit env
+cp .\.env.example .\.env
+# or copy from repo root: cp ..\backend\.env.example .\backend\.env
+
+# IMPORTANT: make sure package imports resolve when running module by setting PYTHONPATH to repo root
+$env:PYTHONPATH = (Get-Location).Path + "\.."
+
+# run ETL while in backend (this will run package module `backend.etl` using repo root on PYTHONPATH)
+python -m backend.etl
+
+# start server - direct run
+python .\app\main.py
+
+# or start with uvicorn executable from the venv (same effect)
+.\venv\Scripts\uvicorn.exe backend.app.main:app --reload
+
+# when finished
+deactivate
 ```
 
-What happens:
+Notes about `PYTHONPATH` and where to run
+- Running `python -m backend.etl` or `python -m uvicorn backend.app.main:app` expects the repository root to be on Python's import path so the `backend` package can be found. That is why setting `PYTHONPATH` to the parent directory is useful when your current working directory is `backend/`.
+- Alternatively, run the commands from the repository root and you won't need to set `PYTHONPATH`.
 
-1. Extract a sample (5 rows per parquet file) to keep the CSV manageable.
-2. Transform columns, normalize IDs, enrich the dataset, and write `data/cleaned/extracted.csv`.
-3. Load location, vendor, and trip tables in the configured database (existing rows cleared by default).
-
-### Loading Existing Cleaned Data Only
-
-If you already have `data/cleaned/extracted.csv` and just want to load it:
-
-```bash
-cd backend
-set -a && source .env && set +a
-PYTHONPATH="$(pwd)/.." venv/bin/python -m etl.load
+Loading environment variables into the current PowerShell session
+```powershell
+Get-Content backend\.env | ForEach-Object {
+	if ($_ -and $_ -notmatch '^[\s#]') {
+		$key, $value = $_ -split '=', 2
+		Set-Item "env:$key" $value
+	}
+}
 ```
 
-Use `--no-reset` to append instead of truncating tables and `--batch-size` to adjust trip insert size.
+Quick reference: what each command does
+- `python -m backend.etl` — runs the ETL pipeline (extract → transform → write cleaned CSV → load into DB).
+- `python .\backend\app\main.py` — runs the FastAPI app directly; `main.py` will call uvicorn if run as __main__.
+- `python -m uvicorn backend.app.main:app --reload --env-file backend/.env` — starts uvicorn with auto-reload and loads `.env` automatically.
 
-## Directory Structure Highlights
+Running tests
 
-- `app/models/` – SQLAlchemy ORM models (`Vendor`, `Location`, `Trip`).
-- `app/db/` – DB engine/session configuration and table creation helper.
-- `etl/` – extract, transform, load modules and pipeline entrypoint.
-- `data/raw/` – source parquet files (place them here).
-- `data/cleaned/` – CSV output and taxi zone lookup file.
+```powershell
+# from repository root (after installing requirements)
+pytest -q
+```
 
+Common troubleshooting
+- Execution policy prevents Activate.ps1: run PowerShell as Administrator or set temporary bypass:
 
-## Troubleshooting
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\venv\Scripts\Activate.ps1
+```
 
-- **Database connection errors**: confirm environment variables are exported and the database server is reachable.
-- **Missing tables**: rerun `app.db.initialize`.
-- **Large dataset**: the default extractor samples from each parquet. Adjust `extract_data()` in `etl/extract.py` for broader coverage if needed.
-
-## Next Steps
-
-With the data loaded, you can build API endpoints in `app/routes/`, add analyses, or connect dashboards to the database schema defined by the ORM models.
+- Module import errors (ModuleNotFoundError: No module named 'backend'): ensure you either run from the repo root or set `PYTHONPATH` when running from `backend/`.
+- ETL file not found errors: ensure your raw parquet files are in `backend/data/raw/` (or `data/raw/` depending on where you run the script) and that you ran the ETL from the correct working directory.
+- Database connection errors: check `backend/.env` values and `backend/app/db/config.py`. Use `DATABASE_URL` for a full connection string if you prefer.
