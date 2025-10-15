@@ -1,246 +1,23 @@
-class ChartRenderer {
-    constructor() {
-        this.colors = {
-            primary: '#4f8cff',
-            accent: '#22d3ee',
-            success: '#22c55e',
-            warning: '#f59e0b',
-            danger: '#ef4444',
-            surface: '#12151c',
-            text: '#e9eef7',
-            muted: '#9aa4b2'
-        };
-    }
-
-    renderTripVolumeChart(canvasId, data) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * window.devicePixelRatio;
-        canvas.height = rect.height * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-        
-        const width = rect.width;
-        const height = rect.height;
-        const padding = { top: 20, right: 40, bottom: 40, left: 60 };
-        const chartWidth = width - padding.left - padding.right;
-        const chartHeight = height - padding.top - padding.bottom;
-
-        ctx.fillStyle = this.colors.surface;
-        ctx.fillRect(0, 0, width, height);
-
-        if (!data || data.length === 0) {
-            this.renderNoDataMessage(ctx, width, height);
-            return;
-        }
-
-        const maxValue = Math.max(...data.map(d => d.value));
-        const minValue = Math.min(...data.map(d => d.value));
-        const valueRange = maxValue - minValue;
-
-        this.drawAxes(ctx, padding, chartWidth, chartHeight, data, maxValue, minValue);
-        this.drawLineChart(ctx, padding, chartWidth, chartHeight, data, maxValue, minValue);
-        this.drawDataPoints(ctx, padding, chartWidth, chartHeight, data, maxValue, minValue);
-    }
-
-    renderVendorPerformanceChart(canvasId, data) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * window.devicePixelRatio;
-        canvas.height = rect.height * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-        
-        const width = rect.width;
-        const height = rect.height;
-        const padding = { top: 20, right: 20, bottom: 60, left: 60 };
-        const chartWidth = width - padding.left - padding.right;
-        const chartHeight = height - padding.top - padding.bottom;
-
-        ctx.fillStyle = this.colors.surface;
-        ctx.fillRect(0, 0, width, height);
-
-        if (!data || data.length === 0) {
-            this.renderNoDataMessage(ctx, width, height);
-            return;
-        }
-
-        const maxValue = Math.max(...data.map(d => d.trip_count));
-        const barWidth = chartWidth / data.length * 0.8;
-        const barSpacing = chartWidth / data.length;
-
-        this.drawBarChartAxes(ctx, padding, chartWidth, chartHeight, data, maxValue);
-        this.drawBarChart(ctx, padding, chartWidth, chartHeight, data, maxValue, barWidth, barSpacing);
-        this.drawBarChartLabels(ctx, padding, chartWidth, chartHeight, data, barSpacing);
-    }
-
-    drawAxes(ctx, padding, chartWidth, chartHeight, data, maxValue, minValue) {
-        ctx.strokeStyle = this.colors.muted;
-        ctx.lineWidth = 1;
-        
-        ctx.beginPath();
-        ctx.moveTo(padding.left, padding.top);
-        ctx.lineTo(padding.left, padding.top + chartHeight);
-        ctx.lineTo(padding.left + chartWidth, padding.top + chartHeight);
-        ctx.stroke();
-
-        const ySteps = 5;
-        const stepValue = (maxValue - minValue) / ySteps;
-        
-        for (let i = 0; i <= ySteps; i++) {
-            const value = minValue + (stepValue * i);
-            const y = padding.top + chartHeight - (i / ySteps) * chartHeight;
-            
-            ctx.fillStyle = this.colors.muted;
-            ctx.font = '12px Inter';
-            ctx.textAlign = 'right';
-            ctx.fillText(this.formatNumber(value), padding.left - 10, y + 4);
-            
-            if (i > 0) {
-                ctx.strokeStyle = this.colors.surface;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(padding.left, y);
-                ctx.lineTo(padding.left + chartWidth, y);
-                ctx.stroke();
-            }
-        }
-    }
-
-    drawLineChart(ctx, padding, chartWidth, chartHeight, data, maxValue, minValue) {
-        if (data.length < 2) return;
-        
-        ctx.strokeStyle = this.colors.primary;
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        
-        ctx.beginPath();
-        
-        data.forEach((point, index) => {
-            const x = padding.left + (index / (data.length - 1)) * chartWidth;
-            const y = padding.top + chartHeight - ((point.value - minValue) / (maxValue - minValue)) * chartHeight;
-            
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-        });
-        
-        ctx.stroke();
-    }
-
-    drawDataPoints(ctx, padding, chartWidth, chartHeight, data, maxValue, minValue) {
-        data.forEach((point, index) => {
-            const x = padding.left + (index / (data.length - 1)) * chartWidth;
-            const y = padding.top + chartHeight - ((point.value - minValue) / (maxValue - minValue)) * chartHeight;
-            
-            ctx.fillStyle = this.colors.primary;
-            ctx.beginPath();
-            ctx.arc(x, y, 4, 0, 2 * Math.PI);
-            ctx.fill();
-            
-            ctx.strokeStyle = this.colors.surface;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(x, y, 4, 0, 2 * Math.PI);
-            ctx.stroke();
-        });
-    }
-
-    drawBarChartAxes(ctx, padding, chartWidth, chartHeight, data, maxValue) {
-        ctx.strokeStyle = this.colors.muted;
-        ctx.lineWidth = 1;
-        
-        ctx.beginPath();
-        ctx.moveTo(padding.left, padding.top);
-        ctx.lineTo(padding.left, padding.top + chartHeight);
-        ctx.lineTo(padding.left + chartWidth, padding.top + chartHeight);
-        ctx.stroke();
-
-        const ySteps = 5;
-        const stepValue = maxValue / ySteps;
-        
-        for (let i = 0; i <= ySteps; i++) {
-            const value = stepValue * i;
-            const y = padding.top + chartHeight - (i / ySteps) * chartHeight;
-            
-            ctx.fillStyle = this.colors.muted;
-            ctx.font = '12px Inter';
-            ctx.textAlign = 'right';
-            ctx.fillText(this.formatNumber(value), padding.left - 10, y + 4);
-            
-            if (i > 0) {
-                ctx.strokeStyle = this.colors.surface;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(padding.left, y);
-                ctx.lineTo(padding.left + chartWidth, y);
-                ctx.stroke();
-            }
-        }
-    }
-
-    drawBarChart(ctx, padding, chartWidth, chartHeight, data, maxValue, barWidth, barSpacing) {
-        const colors = [this.colors.primary, this.colors.accent, this.colors.success, this.colors.warning, this.colors.danger];
-        
-        data.forEach((item, index) => {
-            const barHeight = (item.trip_count / maxValue) * chartHeight;
-            const x = padding.left + (index * barSpacing) + (barSpacing - barWidth) / 2;
-            const y = padding.top + chartHeight - barHeight;
-            
-            const color = colors[index % colors.length];
-            
-            ctx.fillStyle = color;
-            ctx.fillRect(x, y, barWidth, barHeight);
-            
-            ctx.strokeStyle = this.colors.surface;
-            ctx.lineWidth = 1;
-            ctx.strokeRect(x, y, barWidth, barHeight);
-        });
-    }
-
-    drawBarChartLabels(ctx, padding, chartWidth, chartHeight, data, barSpacing) {
-        ctx.fillStyle = this.colors.text;
-        ctx.font = '11px Inter';
-        ctx.textAlign = 'center';
-        
-        data.forEach((item, index) => {
-            const x = padding.left + (index * barSpacing) + (barSpacing / 2);
-            const y = padding.top + chartHeight + 20;
-            
-            const label = item.vendor_id.length > 8 ? item.vendor_id.substring(0, 8) + '...' : item.vendor_id;
-            ctx.fillText(label, x, y);
-        });
-    }
-
-    renderNoDataMessage(ctx, width, height) {
-        ctx.fillStyle = this.colors.muted;
-        ctx.font = '16px Inter';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('No data available', width / 2, height / 2);
-    }
-
-    formatNumber(num) {
-        if (num >= 1000000) {
-            return (num / 1000000).toFixed(1) + 'M';
-        } else if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K';
-        }
-        return Math.round(num).toString();
-    }
-}
+// Chart.js based visualization for Urban Mobility Data Explorer
 
 class DataVisualizer {
     constructor() {
-        this.chartRenderer = new ChartRenderer();
-        this.charts = new Map();
+        this.charts = {};
+        this.colors = {
+            primary: 'rgb(79, 140, 255)',
+            primaryTransparent: 'rgba(79, 140, 255, 0.1)',
+            accent: 'rgb(34, 211, 238)',
+            accentTransparent: 'rgba(34, 211, 238, 0.1)',
+            success: 'rgb(34, 197, 94)',
+            successTransparent: 'rgba(34, 197, 94, 0.1)',
+            warning: 'rgb(245, 158, 11)',
+            warningTransparent: 'rgba(245, 158, 11, 0.1)',
+            danger: 'rgb(239, 68, 68)',
+            dangerTransparent: 'rgba(239, 68, 68, 0.1)',
+            text: 'rgb(233, 238, 247)',
+            muted: 'rgb(154, 164, 178)',
+            grid: 'rgba(154, 164, 178, 0.1)'
+        };
     }
 
     async initializeCharts() {
@@ -250,14 +27,16 @@ class DataVisualizer {
 
     async loadTripVolumeData() {
         try {
-            // Check if app is available
             if (typeof app === 'undefined') {
                 console.log('App not available yet, skipping trip volume data load');
                 return;
             }
+            
             const trips = await app.apiCall('/trips?limit=1000');
+            if (trips && trips.length > 0) {
             const hourlyData = this.aggregateTripsByHour(trips);
             this.renderTripVolumeChart(hourlyData);
+            }
         } catch (error) {
             console.error('Failed to load trip volume data:', error);
         }
@@ -265,13 +44,15 @@ class DataVisualizer {
 
     async loadVendorPerformanceData() {
         try {
-            // Check if app is available
             if (typeof app === 'undefined') {
                 console.log('App not available yet, skipping vendor performance data load');
                 return;
             }
+            
             const vendors = await app.apiCall('/insights/top-vendors?limit=8');
+            if (vendors && vendors.length > 0) {
             this.renderVendorPerformanceChart(vendors);
+            }
         } catch (error) {
             console.error('Failed to load vendor performance data:', error);
         }
@@ -288,11 +69,13 @@ class DataVisualizer {
             }
         });
 
+        // Create array with all 24 hours
         const data = [];
         for (let hour = 0; hour < 24; hour++) {
             data.push({
-                label: `${hour}:00`,
-                value: hourlyCounts.get(hour) || 0
+                hour: hour,
+                label: `${hour.toString().padStart(2, '0')}:00`,
+                count: hourlyCounts.get(hour) || 0
             });
         }
         
@@ -300,11 +83,218 @@ class DataVisualizer {
     }
 
     renderTripVolumeChart(data) {
-        this.chartRenderer.renderTripVolumeChart('trip-volume-chart', data);
+        const ctx = document.getElementById('trip-volume-chart');
+        if (!ctx) return;
+
+        // Destroy existing chart if it exists
+        if (this.charts.tripVolume) {
+            this.charts.tripVolume.destroy();
+        }
+
+        const labels = data.map(d => d.label);
+        const values = data.map(d => d.count);
+
+        this.charts.tripVolume = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Number of Trips',
+                    data: values,
+                    borderColor: this.colors.primary,
+                    backgroundColor: this.colors.primaryTransparent,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: this.colors.primary,
+                    pointHoverBorderColor: this.colors.text,
+                    pointHoverBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(18, 21, 28, 0.95)',
+                        titleColor: this.colors.text,
+                        bodyColor: this.colors.text,
+                        borderColor: this.colors.primary,
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            title: (context) => `${context[0].label}`,
+                            label: (context) => `${context.parsed.y} trips`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: this.colors.grid,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: this.colors.muted,
+                            font: {
+                                size: 11
+                            },
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 12
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: this.colors.grid,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: this.colors.muted,
+                            font: {
+                                size: 11
+                            },
+                            callback: (value) => {
+                                if (value >= 1000) {
+                                    return (value / 1000).toFixed(1) + 'K';
+                                }
+                                return value;
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
     }
 
-    renderVendorPerformanceChart(data) {
-        this.chartRenderer.renderVendorPerformanceChart('vendor-performance-chart', data);
+    renderVendorPerformanceChart(vendors) {
+        const ctx = document.getElementById('vendor-performance-chart');
+        if (!ctx) return;
+
+        // Destroy existing chart if it exists
+        if (this.charts.vendorPerformance) {
+            this.charts.vendorPerformance.destroy();
+        }
+
+        const labels = vendors.map(v => v.vendor_id || 'Unknown');
+        const tripCounts = vendors.map(v => v.trip_count || 0);
+        const revenues = vendors.map(v => v.total_revenue || 0);
+
+        // Create gradient colors for bars
+        const barColors = vendors.map((_, index) => {
+            const colors = [
+                this.colors.primary,
+                this.colors.accent,
+                this.colors.success,
+                this.colors.warning,
+                this.colors.danger,
+                this.colors.primary,
+                this.colors.accent,
+                this.colors.success
+            ];
+            return colors[index % colors.length];
+        });
+
+        this.charts.vendorPerformance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Trip Count',
+                    data: tripCounts,
+                    backgroundColor: barColors.map(c => c.replace('rgb', 'rgba').replace(')', ', 0.8)')),
+                    borderColor: barColors,
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(18, 21, 28, 0.95)',
+                        titleColor: this.colors.text,
+                        bodyColor: this.colors.text,
+                        borderColor: this.colors.primary,
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            title: (context) => `Vendor ${context[0].label}`,
+                            label: (context) => {
+                                const index = context.dataIndex;
+                                const trips = tripCounts[index].toLocaleString();
+                                const revenue = revenues[index].toLocaleString('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
+                                });
+                                return [
+                                    `Trips: ${trips}`,
+                                    `Revenue: ${revenue}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: this.colors.muted,
+                            font: {
+                                size: 11,
+                                weight: 600
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: this.colors.grid,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: this.colors.muted,
+                            font: {
+                                size: 11
+                            },
+                            callback: (value) => {
+                                if (value >= 1000) {
+                                    return (value / 1000).toFixed(1) + 'K';
+                                }
+                                return value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     updateCharts() {
@@ -315,18 +305,14 @@ class DataVisualizer {
 
 const visualizer = new DataVisualizer();
 
+// Wait for DOM and app to be ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Wait for app to be available before initializing charts
     const waitForApp = () => {
         if (typeof app !== 'undefined' && app.apiCall) {
-            visualizer.initializeCharts();
+        visualizer.initializeCharts();
         } else {
             setTimeout(waitForApp, 100);
         }
     };
     waitForApp();
-});
-
-window.addEventListener('resize', () => {
-    visualizer.updateCharts();
 });

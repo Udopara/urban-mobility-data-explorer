@@ -172,11 +172,49 @@ def list_trips(
     limit: int = Query(100, ge=1, le=1_000),
     offset: int = Query(0, ge=0),
     vendor_id: str | None = Query(None),
+    search: str | None = Query(None),
+    start_date: str | None = Query(None),
+    end_date: str | None = Query(None),
+    sort_by: str | None = Query(None),
+    sort_order: str = Query("desc"),
     session: Session = Depends(get_session),
 ) -> List[TripOut]:
-    query = session.query(Trip).order_by(Trip.pickup_datetime.desc())
+    query = session.query(Trip)
+    
+    # Apply filters
     if vendor_id:
         query = query.filter(Trip.vendor_id == vendor_id)
+    
+    if search:
+        # Search by trip_id or vendor_id
+        search_filters = [Trip.vendor_id.like(f"%{search}%")]
+        # Try to search by trip_id if search is numeric
+        try:
+            trip_id_val = int(search)
+            search_filters.append(Trip.trip_id == trip_id_val)
+        except ValueError:
+            pass
+        
+        query = query.filter(or_(*search_filters))
+    
+    if start_date:
+        query = query.filter(Trip.pickup_datetime >= start_date)
+    
+    if end_date:
+        query = query.filter(Trip.pickup_datetime <= end_date)
+    
+    # Apply sorting
+    if sort_by:
+        sort_column = getattr(Trip, sort_by, None)
+        if sort_column:
+            if sort_order.lower() == "asc":
+                query = query.order_by(sort_column.asc())
+            else:
+                query = query.order_by(sort_column.desc())
+        else:
+            query = query.order_by(Trip.pickup_datetime.desc())
+    else:
+        query = query.order_by(Trip.pickup_datetime.desc())
 
     trips = query.offset(offset).limit(limit).all()
     return trips

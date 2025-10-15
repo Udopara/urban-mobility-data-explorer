@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -145,52 +147,110 @@
 
             <section class="trips-section" id="trips">
                 <div class="section-header">
-                    <h2>Trip Records</h2>
-                    <div class="section-controls">
-                        <div class="search-box">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M11.742 10.344C12.731 9.281 13.333 7.937 13.333 6.444C13.333 2.885 10.448 0 6.889 0C3.33 0 0.445 2.885 0.445 6.444C0.445 9.937 3.33 12.822 6.889 12.822C8.382 12.822 9.726 12.22 10.789 11.231L14.333 14.775C14.631 15.073 15.031 15.222 15.431 15.222C15.831 15.222 16.231 15.073 16.529 14.775C17.125 14.179 17.125 13.179 16.529 12.583L11.742 10.344ZM6.889 10.889C4.382 10.889 2.333 8.84 2.333 6.333C2.333 3.826 4.382 1.777 6.889 1.777C9.396 1.777 11.445 3.826 11.445 6.333C11.445 8.84 9.396 10.889 6.889 10.889Z" fill="currentColor"/>
-                            </svg>
-                            <input type="text" placeholder="Search trips..." class="search-input">
+                    <h2>📊 Trip Records</h2>
+                </div>
+
+                <!-- Simplified Filter Panel -->
+                <div class="filter-panel">
+                    <h3>🔍 Search & Filters</h3>
+                    
+                    <div class="filters-grid">
+                        <!-- Search -->
+                        <div class="filter-group">
+                            <label>Search Trips</label>
+                            <div class="search-box">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M11.742 10.344C12.731 9.281 13.333 7.937 13.333 6.444C13.333 2.885 10.448 0 6.889 0C3.33 0 0.445 2.885 0.445 6.444C0.445 9.937 3.33 12.822 6.889 12.822C8.382 12.822 9.726 12.22 10.789 11.231L14.333 14.775C14.631 15.073 15.031 15.222 15.431 15.222C15.831 15.222 16.231 15.073 16.529 14.775C17.125 14.179 17.125 13.179 16.529 12.583L11.742 10.344ZM6.889 10.889C4.382 10.889 2.333 8.84 2.333 6.333C2.333 3.826 4.382 1.777 6.889 1.777C9.396 1.777 11.445 3.826 11.445 6.333C11.445 8.84 9.396 10.889 6.889 10.889Z" fill="currentColor"/>
+                                </svg>
+                                <input type="text" id="search-input" placeholder="Search by trip ID or vendor..." class="search-input">
+                            </div>
                         </div>
-                        <div class="filter-controls">
+
+                        <!-- Vendor Filter -->
+                        <div class="filter-group">
+                            <label>Filter by Vendor</label>
                             <select class="filter-select" id="vendor-filter">
                                 <option value="">All Vendors</option>
                             </select>
-                            <select class="filter-select" id="location-filter">
-                                <option value="">All Locations</option>
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="filter-group">
+                            <label>From Date</label>
+                            <input type="date" id="trips-start-date" class="date-input">
+                        </div>
+
+                        <div class="filter-group">
+                            <label>To Date</label>
+                            <input type="date" id="trips-end-date" class="date-input">
+                        </div>
+
+                        <!-- Sort By -->
+                        <div class="filter-group">
+                            <label>Sort By</label>
+                            <select id="sort-field" class="filter-select">
+                                <option value="">Default Order</option>
+                                <option value="pickup_datetime">Pickup Time</option>
+                                <option value="trip_distance">Distance</option>
+                                <option value="fare_amount">Fare Amount</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort Direction -->
+                        <div class="filter-group">
+                            <label>Order</label>
+                            <select id="sort-direction" class="filter-select">
+                                <option value="desc">Newest First</option>
+                                <option value="asc">Oldest First</option>
                             </select>
                         </div>
                     </div>
-                </div>
 
-                <div class="data-table-container">
-                    <table class="data-table" id="trips-table">
-                        <thead>
-                            <tr>
-                                <th class="sortable" data-sort="trip_id">Trip ID</th>
-                                <th class="sortable" data-sort="vendor_id">Vendor</th>
-                                <th class="sortable" data-sort="pickup_datetime">Pickup Time</th>
-                                <th class="sortable" data-sort="dropoff_datetime">Dropoff Time</th>
-                                <th class="sortable" data-sort="trip_miles">Distance</th>
-                                <th class="sortable" data-sort="trip_duration_hours">Duration</th>
-                                <th class="sortable" data-sort="base_passenger_fare">Fare</th>
-                                <th class="sortable" data-sort="average_speed_mph">Speed</th>
-                            </tr>
-                        </thead>
-                        <tbody id="trips-table-body">
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="pagination-container">
-                    <div class="pagination-info">
-                        <span id="pagination-info">Showing 0-0 of 0 trips</span>
+                    <!-- Filter Actions -->
+                    <div class="filter-actions">
+                        <button id="clear-filters" class="clear-filters-btn">Clear All Filters</button>
                     </div>
-                    <div class="pagination-controls">
-                        <button class="pagination-btn" id="prev-page" disabled>Previous</button>
-                        <div class="page-numbers" id="page-numbers"></div>
-                        <button class="pagination-btn" id="next-page" disabled>Next</button>
+                </div>
+
+                <!-- Data Table -->
+                <div class="data-table-wrapper">
+                    <div class="data-table-container">
+                        <table class="data-table" id="trips-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-sort="trip_id">Trip ID</th>
+                                    <th class="sortable" data-sort="vendor_id">Vendor</th>
+                                    <th class="sortable" data-sort="pickup_datetime">Pickup Time</th>
+                                    <th class="sortable" data-sort="dropoff_datetime">Dropoff Time</th>
+                                    <th class="sortable" data-sort="trip_miles">Distance</th>
+                                    <th class="sortable" data-sort="trip_duration_hours">Duration</th>
+                                    <th class="sortable" data-sort="base_passenger_fare">Fare</th>
+                                    <th class="sortable" data-sort="average_speed_mph">Speed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trips-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            <span id="pagination-info">Showing 0-0 of 0 trips</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="items-per-page">
+                                <label for="items-per-page-select">Items per page:</label>
+                                <select id="items-per-page-select" class="items-per-page-select">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </div>
+                            <button class="pagination-btn" id="prev-page" disabled>⬅️ Previous</button>
+                            <button class="pagination-btn" id="next-page" disabled>Next ➡️</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -208,6 +268,27 @@
                     <h2>Location Insights</h2>
                 </div>
                 <div class="locations-grid" id="locations-grid">
+                </div>
+                
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        <span id="locations-pagination-info">Showing 0-0 of 0 locations</span>
+                    </div>
+                    <div class="pagination-controls">
+                        <div class="items-per-page">
+                            <label for="locations-items-per-page-select">Items per page:</label>
+                            <select id="locations-items-per-page-select" class="items-per-page-select">
+                                <option value="9">9</option>
+                                <option value="12" selected>12</option>
+                                <option value="18">18</option>
+                                <option value="24">24</option>
+                                <option value="36">36</option>
+                            </select>
+                        </div>
+                        <button class="pagination-btn" id="locations-prev-page" disabled>Previous</button>
+                        <div class="page-numbers" id="locations-page-numbers"></div>
+                        <button class="pagination-btn" id="locations-next-page" disabled>Next</button>
+                    </div>
                 </div>
             </section>
 
