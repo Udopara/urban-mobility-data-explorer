@@ -99,6 +99,10 @@ class UrbanMobilityApp {
             this.updateMetricChange('revenue-change', '+8.3%');
             this.updateMetricChange('duration-change', '-5.2%');
 
+            if (typeof visualizer !== 'undefined') {
+                visualizer.updateCharts();
+            }
+
         } catch (error) {
             console.error('Failed to load dashboard metrics:', error);
         }
@@ -349,6 +353,9 @@ class UrbanMobilityApp {
     async refreshData() {
         this.cache.clear();
         await this.loadInitialData();
+        if (typeof visualizer !== 'undefined') {
+            visualizer.updateCharts();
+        }
     }
 
     async apiCall(endpoint) {
