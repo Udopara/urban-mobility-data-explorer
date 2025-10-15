@@ -26,31 +26,53 @@ class UrbanMobilityApp {
             btn.addEventListener('click', (e) => this.switchSection(e.target.dataset.section));
         });
 
-        document.getElementById('refresh-btn').addEventListener('click', () => this.refreshData());
+        const refreshBtn = document.getElementById('refresh-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => this.refreshData());
+        }
         
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            this.filters.search = e.target.value;
-            this.debounceSearch();
-        });
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.filters.search = e.target.value;
+                this.debounceSearch();
+            });
+        }
 
-        document.getElementById('vendor-filter').addEventListener('change', (e) => {
-            this.filters.vendor = e.target.value;
-            this.loadTrips();
-        });
+        const vendorFilter = document.getElementById('vendor-filter');
+        if (vendorFilter) {
+            vendorFilter.addEventListener('change', (e) => {
+                this.filters.vendor = e.target.value;
+                this.loadTrips();
+            });
+        }
 
-        document.getElementById('location-filter').addEventListener('change', (e) => {
-            this.filters.location = e.target.value;
-            this.loadTrips();
-        });
+        const locationFilter = document.getElementById('location-filter');
+        if (locationFilter) {
+            locationFilter.addEventListener('change', (e) => {
+                this.filters.location = e.target.value;
+                this.loadTrips();
+            });
+        }
 
         document.querySelectorAll('.sortable').forEach(th => {
             th.addEventListener('click', () => this.handleSort(th.dataset.sort));
         });
 
-        document.getElementById('prev-page').addEventListener('click', () => this.changePage(-1));
-        document.getElementById('next-page').addEventListener('click', () => this.changePage(1));
+        const prevPageBtn = document.getElementById('prev-page');
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', () => this.changePage(-1));
+        }
+        
+        const nextPageBtn = document.getElementById('next-page');
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', () => this.changePage(1));
+        }
 
-        document.getElementById('toast-close').addEventListener('click', () => this.hideToast());
+        const toastCloseBtn = document.getElementById('toast-close');
+        if (toastCloseBtn) {
+            toastCloseBtn.addEventListener('click', () => this.hideToast());
+        }
     }
 
     setupThemeToggle() {
@@ -58,12 +80,14 @@ class UrbanMobilityApp {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
         
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        });
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+        }
     }
 
     async loadInitialData() {
@@ -361,19 +385,27 @@ class UrbanMobilityApp {
     async apiCall(endpoint) {
         const cacheKey = endpoint;
         if (this.cache.has(cacheKey)) {
+            console.log(`📦 Cache hit for ${endpoint}`);
             return this.cache.get(cacheKey);
         }
 
+        const url = `${this.apiBase}${endpoint}`;
+        console.log(`🌐 Making API call to: ${url}`);
+
         try {
-            const response = await fetch(`${this.apiBase}${endpoint}`);
+            const response = await fetch(url);
+            console.log(`📡 Response status: ${response.status} ${response.statusText}`);
+            
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
             const data = await response.json();
+            console.log(`✅ Data received for ${endpoint}:`, data);
             this.cache.set(cacheKey, data);
             return data;
         } catch (error) {
-            console.error(`API call failed for ${endpoint}:`, error);
+            console.error(`❌ API call failed for ${endpoint}:`, error);
             throw error;
         }
     }

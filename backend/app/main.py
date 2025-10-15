@@ -8,6 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.routes import api_router
 
@@ -15,7 +16,16 @@ from backend.app.routes import api_router
 app = FastAPI(
     title="Urban Mobility Data Explorer API",
     version="1.0.0",
-description="API endpoints for exploring vendors, locations, trips, and analytical insights.",
+    description="API endpoints for exploring vendors, locations, trips, and analytical insights.",
+)
+
+# Add CORS middleware to allow frontend requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
 )
 
 app.include_router(api_router)

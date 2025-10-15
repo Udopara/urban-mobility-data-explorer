@@ -250,6 +250,11 @@ class DataVisualizer {
 
     async loadTripVolumeData() {
         try {
+            // Check if app is available
+            if (typeof app === 'undefined') {
+                console.log('App not available yet, skipping trip volume data load');
+                return;
+            }
             const trips = await app.apiCall('/trips?limit=1000');
             const hourlyData = this.aggregateTripsByHour(trips);
             this.renderTripVolumeChart(hourlyData);
@@ -260,6 +265,11 @@ class DataVisualizer {
 
     async loadVendorPerformanceData() {
         try {
+            // Check if app is available
+            if (typeof app === 'undefined') {
+                console.log('App not available yet, skipping vendor performance data load');
+                return;
+            }
             const vendors = await app.apiCall('/insights/top-vendors?limit=8');
             this.renderVendorPerformanceChart(vendors);
         } catch (error) {
@@ -306,9 +316,15 @@ class DataVisualizer {
 const visualizer = new DataVisualizer();
 
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        visualizer.initializeCharts();
-    }, 1000);
+    // Wait for app to be available before initializing charts
+    const waitForApp = () => {
+        if (typeof app !== 'undefined' && app.apiCall) {
+            visualizer.initializeCharts();
+        } else {
+            setTimeout(waitForApp, 100);
+        }
+    };
+    waitForApp();
 });
 
 window.addEventListener('resize', () => {
