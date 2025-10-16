@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
@@ -24,11 +26,24 @@
                     <h1 class="app-title">Urban Mobility Explorer</h1>
                 </div>
                 <nav class="main-nav">
-                    <button class="nav-btn active" data-section="dashboard">Dashboard</button>
-                    <button class="nav-btn" data-section="trips">Trips</button>
-                    <button class="nav-btn" data-section="vendors">Vendors</button>
-                    <button class="nav-btn" data-section="locations">Locations</button>
-                    <button class="nav-btn" data-section="insights">Insights</button>
+                    <button class="nav-btn active" data-section="dashboard">
+                        <i class="fas fa-home"></i> Dashboard
+                    </button>
+                    <button class="nav-btn" data-section="analytics">
+                        <i class="fas fa-chart-line"></i> Analytics
+                    </button>
+                    <button class="nav-btn" data-section="trips">
+                        <i class="fas fa-route"></i> Trips
+                    </button>
+                    <button class="nav-btn" data-section="vendors">
+                        <i class="fas fa-building"></i> Vendors
+                    </button>
+                    <button class="nav-btn" data-section="locations">
+                        <i class="fas fa-map-marker-alt"></i> Locations
+                    </button>
+                    <button class="nav-btn" data-section="insights">
+                        <i class="fas fa-lightbulb"></i> Insights
+                    </button>
                 </nav>
                 <div class="header-actions">
                     <button class="theme-toggle" aria-label="Toggle theme">
@@ -140,6 +155,123 @@
                         </div>
                         <div class="chart-content">
                             <canvas id="vendor-performance-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ADVANCED ANALYTICS SECTION -->
+            <!-- ============================================ -->
+            <section class="analytics-section" id="analytics">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Advanced Analytics</h2>
+                    <p class="section-description">Deep dive into mobility patterns, correlations, and trends</p>
+                </div>
+
+                <!-- Analytics Grid -->
+                <div class="analytics-grid">
+                    <!-- Distance vs Fare Correlation -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div class="header-left">
+                                <i class="fas fa-chart-scatter gradient-icon-accent"></i>
+                                <div>
+                                    <h3>Distance vs Fare Analysis</h3>
+                                    <p class="card-subtitle">Correlation between trip distance and passenger fare</p>
+                                </div>
+                            </div>
+                            <button class="action-btn" onclick="advancedVisualizer.renderDistanceFareScatter()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="analytics-card-content">
+                            <canvas id="distance-fare-scatter"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Borough Distribution -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div class="header-left">
+                                <i class="fas fa-map-marked-alt gradient-icon-warning"></i>
+                                <div>
+                                    <h3>Location Distribution</h3>
+                                    <p class="card-subtitle">Zones across NYC boroughs</p>
+                                </div>
+                            </div>
+                            <button class="action-btn" onclick="advancedVisualizer.renderBoroughDistribution()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="analytics-card-content">
+                            <canvas id="borough-distribution-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Analysis -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div class="header-left">
+                                <i class="fas fa-dollar-sign gradient-icon-purple"></i>
+                                <div>
+                                    <h3>Revenue Performance</h3>
+                                    <p class="card-subtitle">Total revenue vs average fare by vendor</p>
+                                </div>
+                            </div>
+                            <button class="action-btn" onclick="advancedVisualizer.renderRevenueAnalysis()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="analytics-card-content">
+                            <canvas id="revenue-analysis-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Key Insights Cards -->
+                    <div class="insights-summary-grid">
+                        <div class="insight-summary-card primary">
+                            <div class="insight-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="insight-content">
+                                <h4>Avg Trip Distance</h4>
+                                <p class="insight-value" id="analytics-avg-distance">-</p>
+                                <span class="insight-trend positive"><i class="fas fa-arrow-up"></i> 5.2%</span>
+                            </div>
+                        </div>
+
+                        <div class="insight-summary-card accent">
+                            <div class="insight-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="insight-content">
+                                <h4>Avg Speed</h4>
+                                <p class="insight-value" id="analytics-avg-speed">-</p>
+                                <span class="insight-trend positive"><i class="fas fa-arrow-up"></i> 2.8%</span>
+                            </div>
+                        </div>
+
+                        <div class="insight-summary-card success">
+                            <div class="insight-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="insight-content">
+                                <h4>Revenue/Trip</h4>
+                                <p class="insight-value" id="analytics-revenue-per-trip">-</p>
+                                <span class="insight-trend negative"><i class="fas fa-arrow-down"></i> 1.3%</span>
+                            </div>
+                        </div>
+
+                        <div class="insight-summary-card warning">
+                            <div class="insight-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="insight-content">
+                                <h4>Peak Hour</h4>
+                                <p class="insight-value" id="analytics-peak-hour">-</p>
+                                <span class="insight-label">Most active time</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -323,5 +455,6 @@
 
     <script src="js/main.js"></script>
     <script src="js/charts.js"></script>
+    <script src="js/advanced-charts.js"></script>
 </body>
 </html>

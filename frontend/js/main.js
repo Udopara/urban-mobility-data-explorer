@@ -17,6 +17,7 @@ class UrbanMobilityApp {
         };
         this.searchTimeout = null;
         this.cache = new Map();
+        this.vendorMap = new Map(); // Map vendor IDs to names
         this.init();
     }
 
@@ -114,7 +115,11 @@ class UrbanMobilityApp {
         if (dashStartDateInput) {
             dashStartDateInput.addEventListener('change', (e) => {
                 this.filters.startDate = e.target.value;
-                this.loadInsights();
+                this.cache.clear(); // Clear cache when filters change
+                this.loadDashboardMetrics();
+                if (typeof visualizer !== 'undefined') {
+                    visualizer.updateCharts();
+                }
             });
         }
 
@@ -122,7 +127,11 @@ class UrbanMobilityApp {
         if (dashEndDateInput) {
             dashEndDateInput.addEventListener('change', (e) => {
                 this.filters.endDate = e.target.value;
-                this.loadInsights();
+                this.cache.clear(); // Clear cache when filters change
+                this.loadDashboardMetrics();
+                if (typeof visualizer !== 'undefined') {
+                    visualizer.updateCharts();
+                }
             });
         }
 
@@ -228,9 +237,16 @@ class UrbanMobilityApp {
 
     async loadDashboardMetrics() {
         try {
+            // Build query params from filters
+            const params = new URLSearchParams();
+            if (this.filters.startDate) params.append('start_date', this.filters.startDate);
+            if (this.filters.endDate) params.append('end_date', this.filters.endDate);
+            
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            
             const [overview, summary] = await Promise.all([
-                this.apiCall('/insights/overview'),
-                this.apiCall('/trips/summary')
+                this.apiCall(`/insights/overview${queryString}`),
+                this.apiCall(`/trips/summary${queryString}`)
             ]);
 
             this.updateMetric('total-trips', overview.total_trips?.toLocaleString() || '0');
@@ -256,12 +272,22 @@ class UrbanMobilityApp {
         try {
             this.showVendorsLoading();
             const vendors = await this.apiCall('/vendors');
+            
+            // Build vendor map for ID -> Name lookup
+            vendors.forEach(vendor => {
+                this.vendorMap.set(vendor.vendor_id, vendor.vendor_name || vendor.vendor_id);
+            });
+            
             this.populateVendorFilter(vendors);
             this.renderVendorsGrid(vendors);
         } catch (error) {
             console.error('Failed to load vendors:', error);
             this.showVendorsError();
         }
+    }
+    
+    getVendorName(vendorId) {
+        return this.vendorMap.get(vendorId) || vendorId;
     }
 
     async loadLocations() {
@@ -478,8 +504,80 @@ class UrbanMobilityApp {
         
         this.currentSection = section;
 
+        // Load data based on section
         if (section === 'insights') {
             this.loadInsights();
+        } else if (section === 'analytics') {
+            this.loadAnalytics();
+        }
+    }
+
+    async loadAnalytics() {
+        try {
+            console.log('📊 Loading analytics section...');
+            
+            // Build query params from filters
+            const params = new URLSearchParams();
+            if (this.filters.startDate) params.append('start_date', this.filters.startDate);
+            if (this.filters.endDate) params.append('end_date', this.filters.endDate);
+            
+            const queryString = params.toString() ? `?${params.toString()}` : '';
+            
+            // Load analytics data
+            const summary = await this.apiCall(`/trips/summary${queryString}`);
+            
+            // Update analytics metrics
+            if (summary) {
+                const avgDistanceEl = document.getElementById('analytics-avg-distance');
+                if (avgDistanceEl) {
+                    avgDistanceEl.textContent = summary.avg_trip_miles ? 
+                        `${summary.avg_trip_miles.toFixed(2)} mi` : '-';
+                }
+
+                const avgSpeedEl = document.getElementById('analytics-avg-speed');
+                if (avgSpeedEl) {
+                    avgSpeedEl.textContent = summary.avg_speed_mph ? 
+                        `${summary.avg_speed_mph.toFixed(1)} mph` : '-';
+                }
+
+                const revenuePerTripEl = document.getElementById('analytics-revenue-per-trip');
+                if (revenuePerTripEl && summary.total_revenue && summary.total_trips) {
+                    const revenuePerTrip = summary.total_revenue / summary.total_trips;
+                    revenuePerTripEl.textContent = this.formatCurrency(revenuePerTrip);
+                }
+
+                const peakHourEl = document.getElementById('analytics-peak-hour');
+                if (peakHourEl) {
+                    // Calculate peak hour from trips data
+                    const trips = await this.apiCall(`/trips?limit=1000${queryString ? '&' + params.toString() : ''}`);
+                    if (trips && trips.length > 0) {
+                        const hourCounts = {};
+                        trips.forEach(trip => {
+                            if (trip.pickup_datetime) {
+                                const hour = new Date(trip.pickup_datetime).getHours();
+                                hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+                            }
+                        });
+                        if (Object.keys(hourCounts).length > 0) {
+                            const peakHour = Object.keys(hourCounts).reduce((a, b) => 
+                                hourCounts[a] > hourCounts[b] ? a : b
+                            );
+                            peakHourEl.textContent = `${peakHour.toString().padStart(2, '0')}:00`;
+                        }
+                    }
+                }
+            }
+
+            // Initialize advanced charts
+            if (typeof advancedVisualizer !== 'undefined') {
+                console.log('🚀 Initializing advanced charts...');
+                await advancedVisualizer.initializeAllCharts();
+            } else {
+                console.warn('⚠️ advancedVisualizer not available');
+            }
+        } catch (error) {
+            console.error('❌ Failed to load analytics:', error);
+            this.showToast('Failed to load analytics data', 'error');
         }
     }
 
@@ -699,7 +797,7 @@ class UrbanMobilityApp {
                         <div class="vendor-performance-item ${index < 3 ? 'top-vendor' : ''}">
                             <div class="vendor-rank">${index + 1}</div>
                             <div class="vendor-info">
-                            <span class="vendor-name">${vendor.vendor_id}</span>
+                            <span class="vendor-name">${this.getVendorName(vendor.vendor_id)}</span>
                                 <span class="vendor-trips">${vendor.trip_count.toLocaleString()} trips</span>
                             </div>
                             <div class="vendor-revenue">${this.formatCurrency(vendor.total_revenue)}</div>
@@ -877,7 +975,7 @@ class UrbanMobilityApp {
 
     async refreshData() {
         // Visual feedback
-        const refreshBtn = document.getElementById('refresh-btn');
+        const refreshBtn = document.querySelector('.refresh-btn');
         if (refreshBtn) {
             refreshBtn.style.animation = 'spin 0.6s ease-in-out';
             setTimeout(() => {
@@ -891,11 +989,25 @@ class UrbanMobilityApp {
         
         try {
             await this.loadInitialData();
+            
+            // Reload current section data
+            if (this.currentSection === 'analytics') {
+                await this.loadAnalytics();
+            } else if (this.currentSection === 'dashboard') {
+                await this.loadDashboardMetrics();
+            }
+            
             if (typeof visualizer !== 'undefined') {
                 visualizer.updateCharts();
             }
+            
+            if (typeof advancedVisualizer !== 'undefined' && this.currentSection === 'analytics') {
+                await advancedVisualizer.initializeAllCharts();
+            }
+            
             this.showToast('✅ Data refreshed successfully', 'success');
         } catch (error) {
+            console.error('Refresh error:', error);
             this.showToast('❌ Failed to refresh data', 'error');
         }
     }
