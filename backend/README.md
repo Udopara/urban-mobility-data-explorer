@@ -126,10 +126,11 @@ Examples:
 - MySQL using individual variables:
 
 ```
+The following details should be in an env file at the root of the repo.
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=s3cr3t
+DB_PASSWORD=your_password
 DB_NAME=urban_mobility
 ```
 
