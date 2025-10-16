@@ -23,13 +23,8 @@ Explore and analyze urban mobility trip data with a lightweight stack:
 
 ---
 
-## Prerequisites
 
-- Python 3.10+ (3.10/3.11 recommended)
-- Windows PowerShell (or your preferred shell)
-- Optional: a simple HTTP server to serve the frontend (e.g., `python -m http.server`)
 
----
 
 ## Backend: setup and run
 
@@ -40,13 +35,12 @@ From the repository root (recommended workflow):
 python -m venv .\venv
 .\venv\Scripts\Activate.ps1
 
+#Your gitignore should have your venv in it
+
 # Install dependencies
 pip install -r .\backend\requirements.txt
 
-# (Optional) Configure environment vars
-cp backend\.env.example backend\.env
-# edit backend\.env to set DB connection (DB_* or DATABASE_URL)
-```
+
 
 ### Run ETL (populate the database)
 
@@ -138,14 +132,7 @@ cd frontend
 python -m http.server 5500
 ```
 
-2) Run tests
 
-```powershell
-# from repo root
-pytest -q
-```
-
----
 
 ## Troubleshooting
 
@@ -174,4 +161,6 @@ pytest -q
 
 - See `backend/README.md` for deeper backend/ETL details and environment variable configuration.
 - See `frontend/README.md` for UI structure, customization, and deployment guidance.
+
+
 
