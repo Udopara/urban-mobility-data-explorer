@@ -4,6 +4,8 @@ data/cleaned/*
 data/logs/*
 etl/*.ipynb
 venv/
+backend/venv/
+.venv/
 
 # Python cache
 _pycache_/
