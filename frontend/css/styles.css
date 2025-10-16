@@ -1,9 +1,4 @@
-/* ===============================================
-   URBAN MOBILITY DATA EXPLORER
-   Google Material Design Inspired - Professional
-   =============================================== */
 
-/* Design tokens - Google Material inspired */
 :root {
   /* Colors */
   --bg: #0b0d12;
@@ -61,9 +56,6 @@
   --transition-emphasized: 500ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ===============================================
-   BASE RESET
-   =============================================== */
 
 * { 
   box-sizing: border-box; 
@@ -92,10 +84,6 @@ body {
   flex-direction: column;
   min-height: 100vh; 
 }
-
-/* ===============================================
-   HEADER - Google App Bar Style
-   =============================================== */
 
 .app-header {
   position: sticky; 
@@ -162,7 +150,7 @@ body {
   background-clip: text;
 }
 
-/* Navigation - Google Tabs Style */
+
 .main-nav { 
   display: flex; 
   gap: var(--sp-1); 
@@ -258,9 +246,6 @@ body {
   transform: scale(0.92);
 }
 
-/* ===============================================
-   MAIN LAYOUT
-   =============================================== */
 
 .app-main { 
   flex: 1;
@@ -326,9 +311,6 @@ body {
   color: var(--muted); 
 }
 
-/* ===============================================
-   DASHBOARD METRICS - Material Cards
-   =============================================== */
 
 .metrics-grid { 
   display: grid; 
@@ -422,9 +404,6 @@ body {
   font-weight: 500;
 }
 
-/* ===============================================
-   CHARTS - Professional Chart.js Display
-   =============================================== */
 
 .charts-container { 
   display: grid; 
@@ -523,9 +502,6 @@ canvas {
   border-radius: var(--radius-sm);
 }
 
-/* ===============================================
-   TRIPS TAB - Google Material Design
-   =============================================== */
 
 .trips-section {
   display: flex;
@@ -705,9 +681,6 @@ canvas {
   transform: translateY(0);
 }
 
-/* ===============================================
-   DATA TABLE - Material Design
-   =============================================== */
 
 .data-table-wrapper {
   background: linear-gradient(135deg, var(--surface), var(--surface-2));
@@ -825,10 +798,6 @@ canvas {
   color: var(--primary);
 }
 
-/* ===============================================
-   PAGINATION - Material Design
-   =============================================== */
-
 .pagination-container { 
   display: flex; 
   align-items: center; 
@@ -919,10 +888,6 @@ canvas {
   opacity: 0.4; 
   cursor: not-allowed; 
 }
-
-/* ===============================================
-   VENDORS & LOCATIONS - Material Cards
-   =============================================== */
 
 .vendors-grid, .locations-grid { 
   display: grid; 
@@ -1094,10 +1059,6 @@ canvas {
 .view-trips-btn:active {
   transform: translateY(0);
 }
-
-/* ===============================================
-   INSIGHTS - Enhanced Material Cards
-   =============================================== */
 
 .insights-container { 
   display: grid; 
@@ -1285,9 +1246,6 @@ canvas {
   color: var(--success); 
 }
 
-/* ===============================================
-   LOADING STATES - Material Design
-   =============================================== */
 
 .loading-overlay { 
   position: fixed; 
@@ -1390,9 +1348,6 @@ canvas {
   box-shadow: 0 4px 16px rgba(79, 140, 255, 0.4);
 }
 
-/* ===============================================
-   SECTIONS VISIBILITY
-   =============================================== */
 
 .app-main section { 
   display: none;
@@ -1408,9 +1363,6 @@ canvas {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===============================================
-   RESPONSIVE DESIGN - Google Standards
-   =============================================== */
 
 /* Large tablets and small desktops */
 @media (max-width: 1200px) {
@@ -1639,9 +1591,6 @@ canvas {
   }
 }
 
-/* ===============================================
-   TOAST NOTIFICATIONS - Material Design
-   =============================================== */
 
 .toast-container {
   position: fixed;
@@ -1731,10 +1680,6 @@ canvas {
   }
 }
 
-/* ===============================================
-   UTILITY CLASSES & ANIMATIONS
-   =============================================== */
-
 .text-primary { color: var(--primary); }
 .text-success { color: var(--success); }
 .text-warning { color: var(--warning); }
@@ -1798,7 +1743,7 @@ canvas {
   .search-input,
   .clear-filters-btn,
   .view-trips-btn {
-    min-height: 44px; /* Apple's recommended minimum touch target */
+    min-height: 44px; 
   }
   
   .metric-card:active,

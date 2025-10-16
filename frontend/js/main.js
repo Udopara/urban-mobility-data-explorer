@@ -68,7 +68,7 @@ class UrbanMobilityApp {
         if (vendorFilter) {
             vendorFilter.addEventListener('change', (e) => {
                 this.filters.vendor = e.target.value;
-                this.currentPage = 1; // Reset pagination
+                this.currentPage = 1; 
                 this.highlightActiveFilters();
                 this.loadTrips();
             });
@@ -165,7 +165,7 @@ class UrbanMobilityApp {
         if (itemsPerPageSelect) {
             itemsPerPageSelect.addEventListener('change', (e) => {
                 this.pageSize = parseInt(e.target.value);
-                this.currentPage = 1; // Reset to first page when changing page size
+                this.currentPage = 1; 
                 this.loadTrips();
             });
         }
@@ -174,7 +174,7 @@ class UrbanMobilityApp {
         if (locationsItemsPerPageSelect) {
             locationsItemsPerPageSelect.addEventListener('change', (e) => {
                 this.locationsPageSize = parseInt(e.target.value);
-                this.locationsCurrentPage = 1; // Reset to first page when changing page size
+                this.locationsCurrentPage = 1; 
                 this.loadLocations();
             });
         }
@@ -742,7 +742,7 @@ class UrbanMobilityApp {
         const info = document.getElementById('pagination-info');
         
         if (prevBtn) prevBtn.disabled = this.currentPage === 1;
-        if (nextBtn) nextBtn.disabled = false; // We'll need total count for proper logic
+        if (nextBtn) nextBtn.disabled = false; 
         
         if (info) {
             const start = (this.currentPage - 1) * this.pageSize + 1;
@@ -765,7 +765,7 @@ class UrbanMobilityApp {
         const info = document.getElementById('locations-pagination-info');
         
         prevBtn.disabled = this.locationsCurrentPage === 1;
-        nextBtn.disabled = false; // We'll need to implement total count for proper next button logic
+        nextBtn.disabled = false; 
         
         const start = (this.locationsCurrentPage - 1) * this.locationsPageSize + 1;
         const end = this.locationsCurrentPage * this.locationsPageSize;
@@ -781,14 +781,14 @@ class UrbanMobilityApp {
         }
         
         this.searchTimeout = setTimeout(() => {
-            this.currentPage = 1; // Reset to first page on new search
+            this.currentPage = 1;
             this.loadTrips();
             
             // Reset border color
             if (searchInput) {
                 searchInput.style.borderColor = '';
             }
-        }, 400); // Optimized delay for better UX
+        }, 400); 
     }
 
     highlightActiveFilters() {
@@ -887,28 +887,28 @@ class UrbanMobilityApp {
         
         // Clear cache and reload
         this.cache.clear();
-        this.showToast('🔄 Refreshing data...', 'info');
+        this.showToast(' Refreshing data...', 'info');
         
         try {
             await this.loadInitialData();
             if (typeof visualizer !== 'undefined') {
                 visualizer.updateCharts();
             }
-            this.showToast('✅ Data refreshed successfully', 'success');
+            this.showToast(' Data refreshed successfully', 'success');
         } catch (error) {
-            this.showToast('❌ Failed to refresh data', 'error');
+            this.showToast(' Failed to refresh data', 'error');
         }
     }
 
     async apiCall(endpoint) {
         const cacheKey = endpoint;
         if (this.cache.has(cacheKey)) {
-            console.log(`📦 Cache hit for ${endpoint}`);
+            console.log(` Cache hit for ${endpoint}`);
             return this.cache.get(cacheKey);
         }
 
         const url = `${this.apiBase}${endpoint}`;
-        console.log(`🌐 Making API call to: ${url}`);
+        console.log(` Making API call to: ${url}`);
 
         try {
             const response = await fetch(url);
@@ -919,11 +919,11 @@ class UrbanMobilityApp {
             }
             
             const data = await response.json();
-            console.log(`✅ Data received for ${endpoint}:`, data);
+            console.log(` Data received for ${endpoint}:`, data);
             this.cache.set(cacheKey, data);
             return data;
         } catch (error) {
-            console.error(`❌ API call failed for ${endpoint}:`, error);
+            console.error(` API call failed for ${endpoint}:`, error);
             throw error;
         }
     }
