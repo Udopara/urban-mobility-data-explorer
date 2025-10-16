@@ -9,8 +9,8 @@ from sqlalchemy.orm import sessionmaker
 DEFAULT_DB_HOST = "localhost"
 DEFAULT_DB_PORT = "3306"
 DEFAULT_DB_NAME = "urban_mobility"
-DEFAULT_DB_USER = "user"
-DEFAULT_DB_PASSWORD = "password"
+DEFAULT_DB_USER = "root"
+DEFAULT_DB_PASSWORD = "StrongPassword"
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:

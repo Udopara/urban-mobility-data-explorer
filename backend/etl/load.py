@@ -7,8 +7,8 @@ import pandas as pd
 from sqlalchemy import delete
 from sqlalchemy.exc import SQLAlchemyError
 
-from backend.app.db.config import SessionLocal
-from backend.app.models import Location, Trip, Vendor
+from app.db.config import SessionLocal
+from app.models import Location, Trip, Vendor
 
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "cleaned"

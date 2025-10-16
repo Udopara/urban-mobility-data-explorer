@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Mobility Data Explorer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="urban_image.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <path d="M16 2L20 8H28L24 14L28 20H20L16 26L12 20H4L8 14L4 8H12L16 2Z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h1 class="app-title">Urban Mobility Explorer</h1>
+                </div>
+                <nav class="main-nav">
+                    <button class="nav-btn active" data-section="dashboard">
+                        <i class="fas fa-home"></i> Dashboard
+                    </button>
+                    <button class="nav-btn" data-section="analytics">
+                        <i class="fas fa-chart-line"></i> Analytics
+                    </button>
+                    <button class="nav-btn" data-section="trips">
+                        <i class="fas fa-route"></i> Trips
+                    </button>
+                    <button class="nav-btn" data-section="vendors">
+                        <i class="fas fa-building"></i> Vendors
+                    </button>
+                    <button class="nav-btn" data-section="locations">
+                        <i class="fas fa-map-marker-alt"></i> Locations
+                    </button>
+                    <button class="nav-btn" data-section="insights">
+                        <i class="fas fa-lightbulb"></i> Insights
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <section class="dashboard-section active" id="dashboard">
+                <div class="section-header">
+                    <h2>Mobility Overview</h2>
+                    <div class="section-controls">
+                      
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-title">Total Trips</h3>
+                            <p class="metric-value" id="total-trips">-</p>
+                            <p class="metric-change" id="trips-change">-</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 16V8C20.9996 7.64927 20.9071 7.30481 20.7315 7.00116C20.556 6.69751 20.3037 6.44536 20 6.27L13 2.27C12.696 2.09446 12.3511 2.00205 12 2.00205C11.6489 2.00205 11.304 2.09446 11 2.27L4 6.27C3.69626 6.44536 3.44398 6.69751 3.26846 7.00116C3.09294 7.30481 3.00036 7.64927 3 8V16C3.00036 16.3507 3.09294 16.6952 3.26846 16.9988C3.44398 17.3025 3.69626 17.5546 4 17.73L11 21.73C11.304 21.9055 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9055 13 21.73L20 17.73C20.3037 17.5546 20.556 17.3025 20.7315 16.9988C20.9071 16.6952 20.9996 16.3507 21 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="3.27,6.96 12,12.01 20.73,6.96" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-title">Active Vendors</h3>
+                            <p class="metric-value" id="active-vendors">-</p>
+                            <p class="metric-change" id="vendors-change">-</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 9H14V4H5V21H19V9Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-title">Total Revenue</h3>
+                            <p class="metric-value" id="total-revenue">-</p>
+                            <p class="metric-change" id="revenue-change">-</p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="metric-content">
+                            <h3 class="metric-title">Avg Trip Duration</h3>
+                            <p class="metric-value" id="avg-duration">-</p>
+                            <p class="metric-change" id="duration-change">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Trip Volume Over Time</h3>
+                            <div class="chart-controls">
+                                <select class="time-period-select">
+                                    <option value="hour">Hour</option>
+                                    <option value="day" selected>Day</option>
+                                    <option value="week">Week</option>
+                                    <option value="month">Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="trip-volume-chart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Vendor Performance</h3>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="vendor-performance-chart" width="400" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+           
+            <section class="analytics-section" id="analytics">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Advanced Analytics</h2>
+                    <p class="section-description">Deep dive into mobility patterns, correlations, and trends</p>
+                </div>
+
+                <!-- Analytics Grid -->
+                <div class="analytics-grid">
+                    <!-- Distance vs Fare Correlation -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div class="header-left">
+                                <i class="fas fa-chart-scatter gradient-icon-accent"></i>
+                                <div>
+                                    <h3>Distance vs Fare Analysis</h3>
+                                    <p class="card-subtitle">Correlation between trip distance and passenger fare</p>
+                                </div>
+                            </div>
+                            <button class="action-btn" onclick="advancedVisualizer.renderDistanceFareScatter()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="analytics-card-content">
+                            <canvas id="distance-fare-scatter"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Borough Distribution -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div class="header-left">
+                                <i class="fas fa-map-marked-alt gradient-icon-warning"></i>
+                                <div>
+                                    <h3>Location Distribution</h3>
+                                    <p class="card-subtitle">Zones across NYC boroughs</p>
+                                </div>
+                            </div>
+                            <button class="action-btn" onclick="advancedVisualizer.renderBoroughDistribution()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="analytics-card-content">
+                            <canvas id="borough-distribution-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Analysis -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <div class="header-left">
+                                <i class="fas fa-dollar-sign gradient-icon-purple"></i>
+                                <div>
+                                    <h3>Revenue Performance</h3>
+                                    <p class="card-subtitle">Total revenue vs average fare by vendor</p>
+                                </div>
+                            </div>
+                            <button class="action-btn" onclick="advancedVisualizer.renderRevenueAnalysis()">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="analytics-card-content">
+                            <canvas id="revenue-analysis-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Key Insights Cards -->
+                    <div class="insights-summary-grid">
+                        <div class="insight-summary-card primary">
+                            <div class="insight-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="insight-content">
+                                <h4>Avg Trip Distance</h4>
+                                <p class="insight-value" id="analytics-avg-distance">-</p>
+                                <span class="insight-trend positive"><i class="fas fa-arrow-up"></i> 5.2%</span>
+                            </div>
+                        </div>
+
+                        <div class="insight-summary-card accent">
+                            <div class="insight-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="insight-content">
+                                <h4>Avg Speed</h4>
+                                <p class="insight-value" id="analytics-avg-speed">-</p>
+                                <span class="insight-trend positive"><i class="fas fa-arrow-up"></i> 2.8%</span>
+                            </div>
+                        </div>
+
+                        <div class="insight-summary-card success">
+                            <div class="insight-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="insight-content">
+                                <h4>Revenue/Trip</h4>
+                                <p class="insight-value" id="analytics-revenue-per-trip">-</p>
+                                <span class="insight-trend negative"><i class="fas fa-arrow-down"></i> 1.3%</span>
+                            </div>
+                        </div>
+
+                        <div class="insight-summary-card warning">
+                            <div class="insight-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="insight-content">
+                                <h4>Peak Hour</h4>
+                                <p class="insight-value" id="analytics-peak-hour">-</p>
+                                <span class="insight-label">Most active time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="trips-section" id="trips">
+                <div class="section-header">
+                    <h2>📊 Trip Records</h2>
+                </div>
+
+                <!-- Simplified Filter Panel -->
+                <div class="filter-panel">
+                    <h3>🔍 Search & Filters (The search is automatic)</h3>
+                    
+                    <div class="filters-grid">
+                        <!-- Search -->
+                        <div class="filter-group">
+                            <label>Search Trips</label>
+                            <div class="search-box">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M11.742 10.344C12.731 9.281 13.333 7.937 13.333 6.444C13.333 2.885 10.448 0 6.889 0C3.33 0 0.445 2.885 0.445 6.444C0.445 9.937 3.33 12.822 6.889 12.822C8.382 12.822 9.726 12.22 10.789 11.231L14.333 14.775C14.631 15.073 15.031 15.222 15.431 15.222C15.831 15.222 16.231 15.073 16.529 14.775C17.125 14.179 17.125 13.179 16.529 12.583L11.742 10.344ZM6.889 10.889C4.382 10.889 2.333 8.84 2.333 6.333C2.333 3.826 4.382 1.777 6.889 1.777C9.396 1.777 11.445 3.826 11.445 6.333C11.445 8.84 9.396 10.889 6.889 10.889Z" fill="currentColor"/>
+                                </svg>
+                                <input type="text" id="search-input" placeholder="Search by trip ID or vendor..." class="search-input">
+                            </div>
+                        </div>
+
+                        <!-- Vendor Filter -->
+                        <div class="filter-group">
+                            <label>Filter by Vendor</label>
+                            <select class="filter-select" id="vendor-filter">
+                                <option value="">All Vendors</option>
+                            </select>
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="filter-group">
+                            <label>From Date</label>
+                            <input type="date" id="trips-start-date" class="date-input">
+                        </div>
+
+                        <div class="filter-group">
+                            <label>To Date</label>
+                            <input type="date" id="trips-end-date" class="date-input">
+                        </div>
+
+                        <!-- Sort By -->
+                        <div class="filter-group">
+                            <label>Sort By</label>
+                            <select id="sort-field" class="filter-select">
+                                <option value="">Default Order</option>
+                                <option value="pickup_datetime">Pickup Time</option>
+                                <option value="trip_distance">Distance</option>
+                                <option value="fare_amount">Fare Amount</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort Direction -->
+                        <div class="filter-group">
+                            <label>Order</label>
+                            <select id="sort-direction" class="filter-select">
+                                <option value="desc">Newest First</option>
+                                <option value="asc">Oldest First</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Filter Actions -->
+                    <div class="filter-actions">
+                        <button id="clear-filters" class="clear-filters-btn">Clear All Filters</button>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="data-table-wrapper">
+                    <div class="data-table-container">
+                        <table class="data-table" id="trips-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-sort="trip_id">Trip ID</th>
+                                    <th class="sortable" data-sort="vendor_id">Vendor</th>
+                                    <th class="sortable" data-sort="pickup_datetime">Pickup Time</th>
+                                    <th class="sortable" data-sort="dropoff_datetime">Dropoff Time</th>
+                                    <th class="sortable" data-sort="trip_miles">Distance</th>
+                                    <th class="sortable" data-sort="trip_duration_hours">Duration</th>
+                                    <th class="sortable" data-sort="base_passenger_fare">Fare</th>
+                                    <th class="sortable" data-sort="average_speed_mph">Speed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trips-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            <span id="pagination-info">Showing 0-0 of 0 trips</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="items-per-page">
+                                <label for="items-per-page-select">Items per page:</label>
+                                <select id="items-per-page-select" class="items-per-page-select">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </div>
+                            <button class="pagination-btn" id="prev-page" disabled>⬅️ Previous</button>
+                            <button class="pagination-btn" id="next-page" disabled>Next ➡️</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="vendors-section" id="vendors">
+                <div class="section-header">
+                    <h2>Vendor Analysis</h2>
+                </div>
+                <div class="vendors-grid" id="vendors-grid">
+                </div>
+            </section>
+
+            <section class="locations-section" id="locations">
+                <div class="section-header">
+                    <h2>Location Insights</h2>
+                </div>
+                <div class="locations-grid" id="locations-grid">
+                </div>
+                
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        <span id="locations-pagination-info">Showing 0-0 of 0 locations</span>
+                    </div>
+                    <div class="pagination-controls">
+                        <div class="items-per-page">
+                            <label for="locations-items-per-page-select">Items per page:</label>
+                            <select id="locations-items-per-page-select" class="items-per-page-select">
+                                <option value="9">9</option>
+                                <option value="12" selected>12</option>
+                                <option value="18">18</option>
+                                <option value="24">24</option>
+                                <option value="36">36</option>
+                            </select>
+                        </div>
+                        <button class="pagination-btn" id="locations-prev-page" disabled>Previous</button>
+                        <div class="page-numbers" id="locations-page-numbers"></div>
+                        <button class="pagination-btn" id="locations-next-page" disabled>Next</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="insights-section" id="insights">
+                <div class="section-header">
+                    <h2>Analytical Insights</h2>
+                </div>
+                <div class="insights-container" id="insights-container">
+                </div>
+            </section>
+        </main>
+
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading data...</p>
+            </div>
+        </div>
+
+        <div class="error-toast" id="error-toast">
+            <div class="toast-content">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M10 6V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M10 14H10.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span id="error-message">An error occurred</span>
+                <button class="toast-close" id="toast-close">×</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/advanced-charts.js"></script>
+</body>
+</html>
