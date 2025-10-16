@@ -127,6 +127,7 @@ def load_trips(session, trip_df: pd.DataFrame, batch_size: int = 1_000) -> None:
                 base_passenger_fare=base_fare,
                 driver_pay=driver_pay,
                 total_extra_charges=extras,
+                is_fare_outlier=getattr(row, 'is_fare_outlier', False),
             )
         )
 

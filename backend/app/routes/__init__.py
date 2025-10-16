@@ -288,4 +288,45 @@ def insights_top_vendors(
     return payload
 
 
+@api_router.get("/insights/algorithm-performance", tags=["Insights"])
+def algorithm_performance_stats(session: Session = Depends(get_session)):
+    """Returns custom algorithm performance statistics"""
+    from sqlalchemy import func
+    
+    # Get total trips
+    total_trips = session.query(func.count(Trip.trip_id)).scalar() or 0
+    
+    # Count outliers (if is_fare_outlier column exists)
+    try:
+        outlier_trips = session.query(func.count(Trip.trip_id)).filter(
+            Trip.is_fare_outlier == True
+        ).scalar() or 0
+    except:
+        # Column doesn't exist yet - algorithm hasn't been run
+        outlier_trips = 0
+    
+    # Get fare statistics for algorithm validation
+    fare_stats = session.query(
+        func.min(Trip.base_passenger_fare).label('min_fare'),
+        func.max(Trip.base_passenger_fare).label('max_fare'),
+        func.avg(Trip.base_passenger_fare).label('avg_fare'),
+        func.count(Trip.base_passenger_fare).label('fare_count')
+    ).first()
+    
+    return {
+        "algorithm_status": "Custom IQR Outlier Detection",
+        "total_trips_analyzed": total_trips,
+        "outliers_detected": outlier_trips,
+        "outlier_percentage": round((outlier_trips / total_trips * 100), 2) if total_trips > 0 else 0,
+        "fare_statistics": {
+            "min_fare": float(fare_stats.min_fare) if fare_stats.min_fare else 0,
+            "max_fare": float(fare_stats.max_fare) if fare_stats.max_fare else 0,
+            "avg_fare": float(fare_stats.avg_fare) if fare_stats.avg_fare else 0,
+            "total_with_fares": fare_stats.fare_count or 0
+        },
+        "algorithm_complexity": "O(n log n) - Manual QuickSort + IQR Detection",
+        "data_quality_score": max(0, 100 - ((outlier_trips / total_trips * 100) if total_trips > 0 else 0))
+    }
+
+
 _all_ = ["api_router"]

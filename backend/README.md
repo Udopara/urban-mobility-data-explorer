@@ -39,6 +39,16 @@ pip install -r .\backend\requirements.txt
 
 From the `backend` directory, run the ETL (extract → transform → load) which populates the database used by the FastAPI app.
 
+Before running te command below: 
+   1. Ensure your mysql is running(for those who use xampp).
+   2. Also, you need to add the following in your environment variables:
+        DB_HOST=localhost
+		DB_PORT=3306
+		DB_USER=username_without_quotes
+		DB_PASSWORD=your_password_without_quotes
+		DB_NAME=urban_mobility
+
+
 ```powershell
 cd .\backend
 python -m backend.etl

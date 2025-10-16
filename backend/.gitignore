@@ -6,7 +6,7 @@ etl/*.ipynb
 venv/
 
 # Python cache
-__pycache__/
+_pycache_/
 *.pyc
 
 # Environment files
@@ -16,4 +16,3 @@ __pycache__/
 # OS junk
 .DS_Store
 Thumbs.db
-

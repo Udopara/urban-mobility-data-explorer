@@ -1,3 +1,4 @@
+from app.utils.algorithm_integration import apply_fare_outlier_detection
 import pandas as pd
 
 def transform_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -212,7 +213,7 @@ def transform_data(df: pd.DataFrame) -> pd.DataFrame:
     # Filter out rows where base_passenger_fare or total_extra_charges are negative
     df = df[(df['base_passenger_fare'] >= 0) & (df['total_extra_charges'] >= 0)]
 
-
-
-
+    # Apply custom outlier detection algorithm
+    df = apply_fare_outlier_detection(df)
+    
     return df
