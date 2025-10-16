@@ -4,8 +4,8 @@ data/cleaned/*
 data/logs/*
 etl/*.ipynb
 venv/
-backend/venv/
 .venv/
+backend/venv/
 
 # Python cache
 _pycache_/
@@ -18,3 +18,7 @@ _pycache_/
 # OS junk
 .DS_Store
 Thumbs.db
+
+
+pyvenv.cfg
+
