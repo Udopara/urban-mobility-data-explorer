@@ -32,10 +32,17 @@ class DataVisualizer {
                 return;
             }
             
-            const trips = await app.apiCall('/trips?limit=1000');
+            // Use filter parameters if available
+            const params = new URLSearchParams();
+            if (app.filters && app.filters.startDate) params.append('start_date', app.filters.startDate);
+            if (app.filters && app.filters.endDate) params.append('end_date', app.filters.endDate);
+            
+            const queryString = params.toString() ? `?limit=1000&${params.toString()}` : '?limit=1000';
+            
+            const trips = await app.apiCall(`/trips${queryString}`);
             if (trips && trips.length > 0) {
-            const hourlyData = this.aggregateTripsByHour(trips);
-            this.renderTripVolumeChart(hourlyData);
+                const hourlyData = this.aggregateTripsByHour(trips);
+                this.renderTripVolumeChart(hourlyData);
             }
         } catch (error) {
             console.error('Failed to load trip volume data:', error);
@@ -49,9 +56,20 @@ class DataVisualizer {
                 return;
             }
             
-            const vendors = await app.apiCall('/insights/top-vendors?limit=8');
+            // Use filter parameters if available
+            const params = new URLSearchParams();
+            params.append('limit', '8');
+            if (app.filters && app.filters.startDate) params.append('start_date', app.filters.startDate);
+            if (app.filters && app.filters.endDate) params.append('end_date', app.filters.endDate);
+            
+            const vendors = await app.apiCall(`/insights/top-vendors?${params.toString()}`);
             if (vendors && vendors.length > 0) {
-            this.renderVendorPerformanceChart(vendors);
+                // Map vendor IDs to names
+                const vendorsWithNames = vendors.map(v => ({
+                    ...v,
+                    vendor_name: app.getVendorName(v.vendor_id)
+                }));
+                this.renderVendorPerformanceChart(vendorsWithNames);
             }
         } catch (error) {
             console.error('Failed to load vendor performance data:', error);
@@ -190,7 +208,7 @@ class DataVisualizer {
             this.charts.vendorPerformance.destroy();
         }
 
-        const labels = vendors.map(v => v.vendor_id || 'Unknown');
+        const labels = vendors.map(v => v.vendor_name || v.vendor_id || 'Unknown');
         const tripCounts = vendors.map(v => v.trip_count || 0);
         const revenues = vendors.map(v => v.total_revenue || 0);
 
