@@ -410,6 +410,61 @@
                 <div class="section-header">
                     <h2>Analytical Insights</h2>
                 </div>
+                
+                <!-- Algorithm Performance Card -->
+                <div class="algorithm-performance-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <h3>Custom Algorithm Performance</h3>
+                        <p class="card-subtitle">IQR Outlier Detection Results</p>
+                    </div>
+                    <div class="algorithm-stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Algorithm</span>
+                            <span class="stat-value" id="algorithm-name">Custom IQR Detection</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Trips Analyzed</span>
+                            <span class="stat-value" id="trips-analyzed">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Outliers Detected</span>
+                            <span class="stat-value" id="outliers-detected">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Outlier Rate</span>
+                            <span class="stat-value" id="outlier-percentage">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Data Quality Score</span>
+                            <span class="stat-value" id="data-quality-score">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Complexity</span>
+                            <span class="stat-value" id="algorithm-complexity">O(n log n)</span>
+                        </div>
+                    </div>
+                    <div class="fare-range-info">
+                        <h4>Fare Range Analysis</h4>
+                        <div class="range-stats">
+                            <div class="range-item">
+                                <span class="range-label">Min Fare</span>
+                                <span class="range-value" id="min-fare">-</span>
+                            </div>
+                            <div class="range-item">
+                                <span class="range-label">Max Fare</span>
+                                <span class="range-value" id="max-fare">-</span>
+                            </div>
+                            <div class="range-item">
+                                <span class="range-label">Avg Fare</span>
+                                <span class="range-value" id="avg-fare">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="insights-container" id="insights-container">
                 </div>
             </section>
