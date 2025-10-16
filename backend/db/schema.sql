@@ -41,6 +41,7 @@ CREATE TABLE trips (
     base_passenger_fare DECIMAL(8, 2) DEFAULT NULL,
     driver_pay DECIMAL(8, 2) DEFAULT NULL,
     total_extra_charges DECIMAL(8, 2) DEFAULT NULL,
+    is_fare_outlier BOOLEAN DEFAULT FALSE,
     
     FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id),
     FOREIGN KEY (pickup_id) REFERENCES locations(location_id),

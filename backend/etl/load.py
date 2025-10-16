@@ -7,8 +7,8 @@ import pandas as pd
 from sqlalchemy import delete
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.db.config import SessionLocal
-from app.models import Location, Trip, Vendor
+from app.db.config import SessionLocal, engine
+from app.models import Location, Trip, Vendor, Base
 
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "cleaned"
@@ -145,6 +145,12 @@ def load_trips(session, trip_df: pd.DataFrame, batch_size: int = 1_000) -> None:
     print(f"Inserted {total:,} trips.")
 
 
+def create_tables() -> None:
+    """Create all database tables if they don't exist."""
+    Base.metadata.create_all(bind=engine)
+    print("Database tables created/verified.")
+
+
 def reset_tables(session) -> None:
     session.execute(delete(Trip))
     session.execute(delete(Location))
@@ -169,6 +175,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def load_data(no_reset: bool = False, batch_size: int = 1_000) -> None:
+    # Create tables if they don't exist
+    create_tables()
+    
     session = SessionLocal()
 
     try:
