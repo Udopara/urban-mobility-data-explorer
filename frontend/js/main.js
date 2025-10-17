@@ -355,7 +355,6 @@ class UrbanMobilityApp {
                 tableBody.innerHTML = `
                     <tr><td colspan="8" class="error-card" style="padding: 40px;">
                         <div class="error-content">
-                            <span class="error-icon">⚠️</span>
                             <h3>Failed to load trips</h3>
                             <p>Please try again later</p>
                         </div>
@@ -397,9 +396,6 @@ class UrbanMobilityApp {
         if (container) {
             container.innerHTML = `
                 <div class="error-card">
-                    <div class="error-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
                     <h3>Failed to Load Insights</h3>
                     <p>There was an error loading the insights data. Please try refreshing the page.</p>
                     <button class="btn btn-primary" onclick="location.reload()">
@@ -611,13 +607,13 @@ class UrbanMobilityApp {
 
             // Initialize advanced charts
             if (typeof advancedVisualizer !== 'undefined') {
-                console.log('🚀 Initializing advanced charts...');
+                console.log(' Initializing advanced charts...');
                 await advancedVisualizer.initializeAllCharts();
             } else {
-                console.warn('⚠️ advancedVisualizer not available');
+                console.warn(' advancedVisualizer not available');
             }
         } catch (error) {
-            console.error('❌ Failed to load analytics:', error);
+            console.error(' Failed to load analytics:', error);
             this.showToast('Failed to load analytics data', 'error');
         }
     }
@@ -657,7 +653,6 @@ class UrbanMobilityApp {
             row.innerHTML = `
                 <td colspan="8" style="padding: 60px; text-align: center;">
                     <div class="error-content">
-                        <span style="font-size: 48px;">📭</span>
                         <h3 style="margin: 16px 0 8px; color: var(--text);">No trips found</h3>
                         <p style="color: var(--muted);">Try adjusting your filters or search criteria</p>
                     </div>
@@ -877,7 +872,7 @@ class UrbanMobilityApp {
             `;
         }
         
-        console.log('✅ Algorithm performance data loaded:', stats);
+        console.log('Algorithm performance data loaded:', stats);
     }
 
     renderInsights(overview, topVendors) {
@@ -1113,7 +1108,7 @@ class UrbanMobilityApp {
         this.highlightActiveFilters();
 
         // Show success feedback
-        this.showToast('✨ Filters cleared successfully', 'success');
+        this.showToast(' Filters cleared successfully', 'success');
 
         // Reload data
         this.loadTrips();
@@ -1165,10 +1160,10 @@ class UrbanMobilityApp {
                 await advancedVisualizer.initializeAllCharts();
             }
             
-            this.showToast('✅ Data refreshed successfully', 'success');
+            this.showToast(' Data refreshed successfully', 'success');
         } catch (error) {
             console.error('Refresh error:', error);
-            this.showToast('❌ Failed to refresh data', 'error');
+            this.showToast(' Failed to refresh data', 'error');
         }
     }
 
@@ -1231,16 +1226,8 @@ class UrbanMobilityApp {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         
-        // Icon based on type
-        const icons = {
-            success: '✅',
-            error: '❌',
-            info: 'ℹ️',
-            warning: '⚠️'
-        };
         
         toast.innerHTML = `
-            <span class="toast-icon">${icons[type] || icons.info}</span>
             <span class="toast-content">${message}</span>
             <button class="toast-close" aria-label="Close">✕</button>
         `;
