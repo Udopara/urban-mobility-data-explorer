@@ -157,6 +157,9 @@ python -m http.server 5500
 
 ---
 
+## Our video Link
+https://www.loom.com/share/074ac7d60c914e9ca8a26e537fedbb48?sid=6db13240-38b6-4ded-814b-caa60570667d
+
 ## Notes
 
 - See `backend/README.md` for deeper backend/ETL details and environment variable configuration.
