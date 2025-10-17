@@ -243,7 +243,7 @@ class AdvancedDataVisualizer {
             
             this.createRevenueChart('revenue-analysis-chart', vendorsWithNames);
         } catch (error) {
-            console.error('❌ Failed to render revenue analysis:', error);
+            console.error(' Failed to render revenue analysis:', error);
         }
     }
 

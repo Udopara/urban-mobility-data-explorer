@@ -355,7 +355,6 @@ class UrbanMobilityApp {
                 tableBody.innerHTML = `
                     <tr><td colspan="8" class="error-card" style="padding: 40px;">
                         <div class="error-content">
-                            <span class="error-icon">⚠️</span>
                             <h3>Failed to load trips</h3>
                             <p>Please try again later</p>
                         </div>
@@ -370,6 +369,7 @@ class UrbanMobilityApp {
         try {
             // Show loading state
             this.showInsightsLoading();
+            this.showAlgorithmPerformanceLoading();
             
             const params = new URLSearchParams();
             if (this.filters.startDate) params.append('start_date', this.filters.startDate);
@@ -377,21 +377,58 @@ class UrbanMobilityApp {
             
             const queryString = params.toString() ? `?${params.toString()}` : '';
             
-            const [overview, topVendors] = await Promise.all([
+            const [overview, topVendors, algorithmStats] = await Promise.all([
                 this.apiCall(`/insights/overview${queryString}`),
-                this.apiCall(`/insights/top-vendors?limit=10${queryString ? '&' + params.toString() : ''}`)
+                this.apiCall(`/insights/top-vendors?limit=10${queryString ? '&' + params.toString() : ''}`),
+                this.apiCall('/insights/algorithm-performance')
             ]);
 
             this.renderInsights(overview, topVendors);
+            this.renderAlgorithmPerformance(algorithmStats);
         } catch (error) {
             console.error('Failed to load insights:', error);
             this.showInsightsError();
         }
     }
 
+    showInsightsError() {
+        const container = document.getElementById('insights-container');
+        if (container) {
+            container.innerHTML = `
+                <div class="error-card">
+                    <h3>Failed to Load Insights</h3>
+                    <p>There was an error loading the insights data. Please try refreshing the page.</p>
+                    <button class="btn btn-primary" onclick="location.reload()">
+                        <i class="fas fa-refresh"></i> Refresh Page
+                    </button>
+                </div>
+            `;
+        }
+    }
+
     showInsightsLoading() {
         const container = document.getElementById('insights-container');
         container.innerHTML = `
+            <!-- Algorithm Performance Loading Card -->
+            <div class="algorithm-performance-card loading-card">
+                <div class="card-header">
+                    <div class="card-icon loading-skeleton"></div>
+                    <h3 class="loading-skeleton" style="width: 200px; height: 24px;"></h3>
+                    <p class="loading-skeleton" style="width: 150px; height: 16px;"></p>
+                </div>
+                <div class="algorithm-stats-grid">
+                    ${Array.from({length: 5}, () => `
+                        <div class="stat-card loading-skeleton" style="width: 100%; height: 80px;"></div>
+                    `).join('')}
+                </div>
+                <div class="card-divider loading-skeleton" style="width: 100%; height: 1px; margin: 20px 0;"></div>
+                <div class="fare-range-stats">
+                    ${Array.from({length: 3}, () => `
+                        <div class="fare-stat loading-skeleton" style="width: 100px; height: 40px;"></div>
+                    `).join('')}
+                </div>
+            </div>
+            
             <div class="insight-card loading-card">
                 <div class="card-header">
                     <div class="card-icon loading-skeleton"></div>
@@ -570,13 +607,13 @@ class UrbanMobilityApp {
 
             // Initialize advanced charts
             if (typeof advancedVisualizer !== 'undefined') {
-                console.log('🚀 Initializing advanced charts...');
+                console.log(' Initializing advanced charts...');
                 await advancedVisualizer.initializeAllCharts();
             } else {
-                console.warn('⚠️ advancedVisualizer not available');
+                console.warn(' advancedVisualizer not available');
             }
         } catch (error) {
-            console.error('❌ Failed to load analytics:', error);
+            console.error(' Failed to load analytics:', error);
             this.showToast('Failed to load analytics data', 'error');
         }
     }
@@ -616,7 +653,6 @@ class UrbanMobilityApp {
             row.innerHTML = `
                 <td colspan="8" style="padding: 60px; text-align: center;">
                     <div class="error-content">
-                        <span style="font-size: 48px;">📭</span>
                         <h3 style="margin: 16px 0 8px; color: var(--text);">No trips found</h3>
                         <p style="color: var(--muted);">Try adjusting your filters or search criteria</p>
                     </div>
@@ -718,6 +754,125 @@ class UrbanMobilityApp {
             `;
             grid.appendChild(card);
         });
+    }
+
+    showAlgorithmPerformanceLoading() {
+        const algorithmCard = document.querySelector('.algorithm-performance-card');
+        if (algorithmCard) {
+            algorithmCard.innerHTML = `
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3>Custom Algorithm Performance</h3>
+                    <p class="card-subtitle">IQR-based outlier detection with manual QuickSort</p>
+                </div>
+                <div class="algorithm-stats-grid">
+                    <div class="stat-card loading-skeleton" style="height: 80px;"></div>
+                    <div class="stat-card loading-skeleton" style="height: 80px;"></div>
+                    <div class="stat-card loading-skeleton" style="height: 80px;"></div>
+                    <div class="stat-card loading-skeleton" style="height: 80px;"></div>
+                    <div class="stat-card loading-skeleton" style="height: 80px;"></div>
+                </div>
+                <div class="card-divider"></div>
+                <div class="fare-range-stats">
+                    <div class="fare-stat loading-skeleton" style="width: 100px; height: 40px;"></div>
+                    <div class="fare-stat loading-skeleton" style="width: 100px; height: 40px;"></div>
+                    <div class="fare-stat loading-skeleton" style="width: 100px; height: 40px;"></div>
+                </div>
+            `;
+        }
+    }
+
+    renderAlgorithmPerformance(stats) {
+        if (!stats) return;
+        
+        // Create the algorithm performance card HTML structure
+        const algorithmCard = document.querySelector('.algorithm-performance-card');
+        if (algorithmCard) {
+            algorithmCard.innerHTML = `
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3>Custom Algorithm Performance</h3>
+                    <p class="card-subtitle">IQR-based outlier detection with manual QuickSort</p>
+                </div>
+                <div class="algorithm-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Algorithm</span>
+                            <span class="stat-value">${stats.algorithm_status || 'Custom IQR Detection'}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Complexity</span>
+                            <span class="stat-value">${stats.algorithm_complexity || 'O(n log n)'}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Trips Analyzed</span>
+                            <span class="stat-value" id="trips-analyzed">${stats.total_trips_analyzed?.toLocaleString() || '0'}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Outliers Detected</span>
+                            <span class="stat-value" id="outliers-detected">${stats.outliers_detected?.toLocaleString() || '0'}</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Outlier Rate</span>
+                            <span class="stat-value" id="outlier-percentage">${stats.outlier_percentage?.toFixed(2) || '0'}%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Data Quality Score</span>
+                            <span class="stat-value" id="data-quality-score">${stats.data_quality_score?.toFixed(1) || '0'}%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-divider"></div>
+                <div class="fare-range-stats">
+                    <div class="fare-stat">
+                        <span class="fare-label">Min Fare</span>
+                        <span class="fare-value" id="min-fare">${this.formatCurrency(stats.fare_statistics?.min_fare || 0)}</span>
+                    </div>
+                    <div class="fare-stat">
+                        <span class="fare-label">Max Fare</span>
+                        <span class="fare-value" id="max-fare">${this.formatCurrency(stats.fare_statistics?.max_fare || 0)}</span>
+                    </div>
+                    <div class="fare-stat">
+                        <span class="fare-label">Avg Fare</span>
+                        <span class="fare-value" id="avg-fare">${this.formatCurrency(stats.fare_statistics?.avg_fare || 0)}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        console.log('Algorithm performance data loaded:', stats);
     }
 
     renderInsights(overview, topVendors) {
@@ -953,7 +1108,7 @@ class UrbanMobilityApp {
         this.highlightActiveFilters();
 
         // Show success feedback
-        this.showToast('✨ Filters cleared successfully', 'success');
+        this.showToast(' Filters cleared successfully', 'success');
 
         // Reload data
         this.loadTrips();
@@ -1005,10 +1160,10 @@ class UrbanMobilityApp {
                 await advancedVisualizer.initializeAllCharts();
             }
             
-            this.showToast('✅ Data refreshed successfully', 'success');
+            this.showToast(' Data refreshed successfully', 'success');
         } catch (error) {
             console.error('Refresh error:', error);
-            this.showToast('❌ Failed to refresh data', 'error');
+            this.showToast(' Failed to refresh data', 'error');
         }
     }
 
@@ -1071,16 +1226,8 @@ class UrbanMobilityApp {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         
-        // Icon based on type
-        const icons = {
-            success: '✅',
-            error: '❌',
-            info: 'ℹ️',
-            warning: '⚠️'
-        };
         
         toast.innerHTML = `
-            <span class="toast-icon">${icons[type] || icons.info}</span>
             <span class="toast-content">${message}</span>
             <button class="toast-close" aria-label="Close">✕</button>
         `;
@@ -1128,7 +1275,7 @@ class UrbanMobilityApp {
     }
 
     formatCurrency(amount) {
-        if (!amount) return '-';
+        if (amount === null || amount === undefined) return '-';
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD'

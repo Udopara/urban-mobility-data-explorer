@@ -5,9 +5,10 @@ data/logs/*
 etl/*.ipynb
 venv/
 .venv/
+backend/venv/
 
 # Python cache
-__pycache__/
+_pycache_/
 *.pyc
 
 # Environment files
