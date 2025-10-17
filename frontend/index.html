@@ -410,6 +410,61 @@
                 <div class="section-header">
                     <h2>Analytical Insights</h2>
                 </div>
+                
+                <!-- Algorithm Performance Card -->
+                <div class="algorithm-performance-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <h3>Custom Algorithm Performance</h3>
+                        <p class="card-subtitle">IQR Outlier Detection Results</p>
+                    </div>
+                    <div class="algorithm-stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Algorithm</span>
+                            <span class="stat-value" id="algorithm-name">Custom IQR Detection</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Trips Analyzed</span>
+                            <span class="stat-value" id="trips-analyzed">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Outliers Detected</span>
+                            <span class="stat-value" id="outliers-detected">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Outlier Rate</span>
+                            <span class="stat-value" id="outlier-percentage">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Data Quality Score</span>
+                            <span class="stat-value" id="data-quality-score">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Complexity</span>
+                            <span class="stat-value" id="algorithm-complexity">O(n log n)</span>
+                        </div>
+                    </div>
+                    <div class="fare-range-info">
+                        <h4>Fare Range Analysis</h4>
+                        <div class="range-stats">
+                            <div class="range-item">
+                                <span class="range-label">Min Fare</span>
+                                <span class="range-value" id="min-fare">-</span>
+                            </div>
+                            <div class="range-item">
+                                <span class="range-label">Max Fare</span>
+                                <span class="range-value" id="max-fare">-</span>
+                            </div>
+                            <div class="range-item">
+                                <span class="range-label">Avg Fare</span>
+                                <span class="range-value" id="avg-fare">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="insights-container" id="insights-container">
                 </div>
             </section>
@@ -422,17 +477,7 @@
             </div>
         </div>
 
-        <div class="error-toast" id="error-toast">
-            <div class="toast-content">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="currentColor" stroke-width="2"/>
-                    <path d="M10 6V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M10 14H10.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <span id="error-message">An error occurred</span>
-                <button class="toast-close" id="toast-close">×</button>
-            </div>
-        </div>
+      
     </div>
 
     <script src="js/main.js"></script>

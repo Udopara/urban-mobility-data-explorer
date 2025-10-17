@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String, Boolean
 from sqlalchemy.orm import declarative_base, relationship
 
 
@@ -54,6 +54,7 @@ class Trip(Base):
     base_passenger_fare = Column(Numeric(8, 2), nullable=True)
     driver_pay = Column(Numeric(8, 2), nullable=True)
     total_extra_charges = Column(Numeric(8, 2), nullable=True)
+    is_fare_outlier = Column(Boolean, nullable=True, default=False)
 
     vendor = relationship("Vendor", back_populates="trips")
     pickup_location = relationship(
