@@ -45,7 +45,8 @@ pip install -r .\backend\requirements.txt
 ### Run ETL (populate the database)
 
 ```powershell
-python -m backend.etl
+cd backend
+python -m etl
 ```
 
 This runs `backend/etl/__main__.py` which reads parquet files from `backend/data/raw/`, cleans/transforms, writes cleaned CSVs to `backend/data/cleaned/`, and loads into the configured database (see `backend/app/db/config.py`).
